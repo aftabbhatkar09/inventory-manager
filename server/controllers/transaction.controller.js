@@ -1,5 +1,13 @@
 import Transaction from "../models/transaction.model.js";
+import Product from "../models/product.model.js";
 import { getProductStockById } from "../utils/stock.util.js";
+
+const buildStockError = async (item, availableStock) => {
+  const product = await Product.findById(item.product);
+  const name = product?.name || item.product;
+
+  return `Not enough stock of "${name}" (available: ${availableStock}, requested: ${item.quantity})`;
+};
 
 // Create transaction
 export const createTransaction = async (req, res) => {
@@ -20,7 +28,7 @@ export const createTransaction = async (req, res) => {
         if (item.quantity > availableStock) {
           return res
             .status(400)
-            .json({ message: `Not enough stock of product ${item.product}` });
+            .json({ message: await buildStockError(item, availableStock) });
         }
       }
     }
@@ -108,7 +116,7 @@ export const updateTransaction = async (req, res) => {
         if (item.quantity > availableStock) {
           return res
             .status(400)
-            .json({ message: `Not enough stock of product ${item.product}` });
+            .json({ message: await buildStockError(item, availableStock) });
         }
       }
     }
