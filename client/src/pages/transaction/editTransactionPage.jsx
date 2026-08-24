@@ -144,6 +144,17 @@ const EditTransactionPage = () => {
 
     if (!validate()) return;
 
+    if (Number(formData.paidAmount) > totalAmount) {
+      const overpaid = Number(formData.paidAmount) - totalAmount;
+      if (
+        !confirm(
+          `Paid amount exceeds the total by ₹${overpaid}. This will be recorded as an advance. Continue?`,
+        )
+      ) {
+        return;
+      }
+    }
+
     try {
       await editTransaction({
         id,

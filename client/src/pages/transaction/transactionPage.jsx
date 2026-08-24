@@ -100,7 +100,13 @@ const TransactionPage = () => {
                 <div className="flex justify-between text-sm font-medium">
                   <span>Total Amount: ₹{txn.totalAmount}</span>
                   <span>Paid Amount: ₹{txn.paidAmount}</span>
-                  <span>Remaining: ₹{txn.remainingAmount}</span>
+                  {txn.remainingAmount < 0 ? (
+                    <span className="text-green-600">
+                      Advance: ₹{Math.abs(txn.remainingAmount)}
+                    </span>
+                  ) : (
+                    <span>Remaining: ₹{txn.remainingAmount}</span>
+                  )}
                 </div>
 
                 {/* Payment Mode  */}

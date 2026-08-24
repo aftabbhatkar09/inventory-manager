@@ -91,14 +91,28 @@ const PartyLedgerPage = () => {
                 <td className="text-right">₹{entry.totalAmount}</td>
                 <td className="text-right">₹{entry.paidAmount}</td>
                 <td
-                  className={`text-right ${entry.type === "sale" ? "text-green-600" : entry.type === "purchase" ? "text-red-600" : ""}`}
+                  className={`text-right ${
+                    entry.remainingAmount < 0
+                      ? "text-green-600"
+                      : entry.type === "sale"
+                        ? "text-green-600"
+                        : entry.type === "purchase"
+                          ? "text-red-600"
+                          : ""
+                  }`}
                 >
-                  {entry.type === "sale"
-                    ? "+"
-                    : entry.type === "purchase"
-                      ? "-"
-                      : ""}
-                  ₹{entry.remainingAmount}
+                  {entry.remainingAmount < 0 ? (
+                    <>Advance ₹{Math.abs(entry.remainingAmount)}</>
+                  ) : (
+                    <>
+                      {entry.type === "sale"
+                        ? "+"
+                        : entry.type === "purchase"
+                          ? "-"
+                          : ""}
+                      ₹{entry.remainingAmount}
+                    </>
+                  )}
                 </td>
                 <td className="text-right">₹{entry.balance}</td>
               </tr>
