@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -13,31 +13,17 @@ const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500
 const INPUT =
   "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
-const EditProductPage = () => {
+const EditProductForm = ({ product }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const { data: product, isLoading } = useGetProductByIdQuery(id);
   const [editProduct] = useEditProductMutation();
 
   const [formData, setFormData] = useState({
-    name: "",
-    sku: "",
-    category: "",
-    unit: "pcs",
+    name: product.name || "",
+    sku: product.sku || "",
+    category: product.category || "",
+    unit: product.unit || "pcs",
   });
-
-  // Fill form when data comes
-  useEffect(() => {
-    if (product) {
-      setFormData({
-        name: product.name || "",
-        sku: product.sku || "",
-        category: product.category || "",
-        unit: product.unit || "pcs",
-      });
-    }
-  }, [product]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,8 +67,6 @@ const EditProductPage = () => {
       toast.error(error?.data?.message || "Failed to update product.");
     }
   };
-
-  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -158,6 +142,16 @@ const EditProductPage = () => {
       </form>
     </div>
   );
+};
+
+const EditProductPage = () => {
+  const { id } = useParams();
+
+  const { data: product, isLoading } = useGetProductByIdQuery(id);
+
+  if (isLoading) return <p>Loading...</p>;
+
+  return <EditProductForm key={id} product={product} />;
 };
 
 export default EditProductPage;

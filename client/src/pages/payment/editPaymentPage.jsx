@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -17,34 +17,21 @@ const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500
 const INPUT =
   "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
-const EditPaymentPage = () => {
+const EditPaymentForm = ({ payment }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: payment, isLoading } = useGetPaymentByIdQuery(id);
   const { data: parties } = useGetPartiesQuery();
   const [editPaymentById, { isLoading: isUpdating }] =
     useEditPaymentByIdMutation();
 
   const [formData, setFormData] = useState({
-    type: "received",
-    party: "",
-    amount: "",
-    paymentMode: "cash",
-    note: "",
+    type: payment.type,
+    party: payment.party?._id || "",
+    amount: payment.amount,
+    paymentMode: payment.paymentMode,
+    note: payment.note || "",
   });
-
-  useEffect(() => {
-    if (payment) {
-      setFormData({
-        type: payment.type,
-        party: payment.party?._id || "",
-        amount: payment.amount,
-        paymentMode: payment.paymentMode,
-        note: payment.note || "",
-      });
-    }
-  }, [payment]);
 
   const { data: ledger } = useGetPartyLedgerQuery(formData.party, {
     skip: !formData.party,
@@ -97,8 +84,6 @@ const EditPaymentPage = () => {
       toast.error(error?.data?.message || "Failed to update payment");
     }
   };
-
-  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -212,6 +197,16 @@ const EditPaymentPage = () => {
       </form>
     </div>
   );
+};
+
+const EditPaymentPage = () => {
+  const { id } = useParams();
+
+  const { data: payment, isLoading } = useGetPaymentByIdQuery(id);
+
+  if (isLoading) return <p>Loading...</p>;
+
+  return <EditPaymentForm key={id} payment={payment} />;
 };
 
 export default EditPaymentPage;

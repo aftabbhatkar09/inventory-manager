@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -13,27 +13,16 @@ const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500
 const INPUT =
   "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
-const EditGodownPage = () => {
+const EditGodownForm = ({ godown }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const { data: godown, isLoading } = useGetGodownByIdQuery(id);
   const [editGodownById, { isLoading: isUpdating }] =
     useEditGodownByIdMutation();
 
   const [formData, setFormData] = useState({
-    name: "",
-    address: "",
+    name: godown.name || "",
+    address: godown.address || "",
   });
-
-  useEffect(() => {
-    if (godown) {
-      setFormData({
-        name: godown.name || "",
-        address: godown.address || "",
-      });
-    }
-  }, [godown]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,8 +58,6 @@ const EditGodownPage = () => {
       toast.error(error?.data?.message || "Failed to update godown.");
     }
   };
-
-  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -119,6 +106,16 @@ const EditGodownPage = () => {
       </form>
     </div>
   );
+};
+
+const EditGodownPage = () => {
+  const { id } = useParams();
+
+  const { data: godown, isLoading } = useGetGodownByIdQuery(id);
+
+  if (isLoading) return <p>Loading...</p>;
+
+  return <EditGodownForm key={id} godown={godown} />;
 };
 
 export default EditGodownPage;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -18,11 +18,10 @@ const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500
 const INPUT =
   "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
-const EditTransactionPage = () => {
+const EditTransactionForm = ({ transaction }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: transaction, isLoading } = useGetTransactionByIdQuery(id);
   const { data: parties } = useGetPartiesQuery();
   const { data: products } = useGetProductsQuery();
   const { data: godowns } = useGetGodownsQuery();
@@ -30,31 +29,17 @@ const EditTransactionPage = () => {
     useEditTransactionMutation();
 
   const [formData, setFormData] = useState({
-    type: "purchase",
-    party: "",
-    godown: "",
-    products: [{ product: "", quantity: "", price: "" }],
-    paidAmount: "",
-    paymentMode: "cash",
+    type: transaction.type,
+    party: transaction.party?._id || "",
+    godown: transaction.godown?._id || "",
+    products: transaction.products.map((item) => ({
+      product: item.product?._id || "",
+      quantity: item.quantity,
+      price: item.price,
+    })),
+    paidAmount: transaction.paidAmount,
+    paymentMode: transaction.paymentMode,
   });
-
-  // Fill form when transaction data comes
-  useEffect(() => {
-    if (transaction) {
-      setFormData({
-        type: transaction.type,
-        party: transaction.party?._id || "",
-        godown: transaction.godown?._id || "",
-        products: transaction.products.map((item) => ({
-          product: item.product?._id || "",
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        paidAmount: transaction.paidAmount,
-        paymentMode: transaction.paymentMode,
-      });
-    }
-  }, [transaction]);
 
   // Handle normal fields
   const handleChange = (e) => {
@@ -184,8 +169,6 @@ const EditTransactionPage = () => {
       toast.error(error?.data?.message || "Failed to update transaction");
     }
   };
-
-  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -380,6 +363,16 @@ const EditTransactionPage = () => {
       </form>
     </div>
   );
+};
+
+const EditTransactionPage = () => {
+  const { id } = useParams();
+
+  const { data: transaction, isLoading } = useGetTransactionByIdQuery(id);
+
+  if (isLoading) return <p>Loading...</p>;
+
+  return <EditTransactionForm key={id} transaction={transaction} />;
 };
 
 export default EditTransactionPage;

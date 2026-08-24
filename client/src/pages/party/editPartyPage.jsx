@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -13,34 +13,19 @@ const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500
 const INPUT =
   "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
-const EditPartyPage = () => {
+const EditPartyForm = ({ party }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const { data: party, isLoading, error } = useGetPartyByIdQuery(id);
   const [editPartyById, { isLoading: isUpdating }] = useEditPartyByIdMutation();
 
   const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-    type: [],
-    openingBalance: 0,
+    name: party.name || "",
+    phone: party.phone || "",
+    email: party.email || "",
+    address: party.address || "",
+    type: party.type || [],
+    openingBalance: party.openingBalance || 0,
   });
-
-  useEffect(() => {
-    if (party) {
-      setFormData({
-        name: party.name || "",
-        phone: party.phone || "",
-        email: party.email || "",
-        address: party.address || "",
-        type: party.type || [],
-        openingBalance: party.openingBalance || 0,
-      });
-    }
-  }, [party]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -89,9 +74,6 @@ const EditPartyPage = () => {
       toast.error(error?.data?.message || "Failed to update party");
     }
   };
-
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-600">Error fetching party details.</p>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -205,6 +187,17 @@ const EditPartyPage = () => {
       </form>
     </div>
   );
+};
+
+const EditPartyPage = () => {
+  const { id } = useParams();
+
+  const { data: party, isLoading, error } = useGetPartyByIdQuery(id);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-600">Error fetching party details.</p>;
+
+  return <EditPartyForm key={id} party={party} />;
 };
 
 export default EditPartyPage;
