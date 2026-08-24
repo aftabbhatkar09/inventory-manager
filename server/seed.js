@@ -1,5 +1,6 @@
-// Wipes Product/Party/Transaction and reloads a fresh, internally-consistent
-// dataset for manual testing: run with `npm run seed` from server/.
+// Wipes Product/Party/Transaction/Payment and reloads a fresh,
+// internally-consistent dataset for manual testing: run with `npm run seed`
+// from server/.
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
@@ -7,6 +8,7 @@ import connectDB from "./config/db.js";
 import Product from "./models/product.model.js";
 import Party from "./models/party.model.js";
 import Transaction from "./models/transaction.model.js";
+import Payment from "./models/payment.model.js";
 
 dotenv.config();
 
@@ -47,11 +49,12 @@ const line = (product, quantity, price) => ({
 const run = async () => {
   await connectDB();
 
-  console.log("Clearing existing products, parties, and transactions...");
+  console.log("Clearing existing products, parties, transactions, and payments...");
   await Promise.all([
     Product.deleteMany({}),
     Party.deleteMany({}),
     Transaction.deleteMany({}),
+    Payment.deleteMany({}),
   ]);
 
   console.log("Seeding products...");
