@@ -21,6 +21,14 @@ import PaymentPage from "./pages/payment/paymentPage";
 import CreatePaymentPage from "./pages/payment/createPaymentPage";
 import EditPaymentPage from "./pages/payment/editPaymentPage";
 
+import GodownPage from "./pages/godown/godownPage";
+import CreateGodownPage from "./pages/godown/createGodownPage";
+import EditGodownPage from "./pages/godown/editGodownPage";
+import GodownStockPage from "./pages/godown/godownStockPage";
+
+import StockTransferPage from "./pages/stockTransfer/stockTransferPage";
+import CreateStockTransferPage from "./pages/stockTransfer/createStockTransferPage";
+
 import OutStandingReport from "./pages/reports/outStandingReport";
 
 function App() {
@@ -47,6 +55,15 @@ function App() {
         <Route path="payments" element={<PaymentPage />} />
         <Route path="payments/createPayment" element={<CreatePaymentPage />} />
         <Route path="payments/editPayment/:id" element={<EditPaymentPage />} />
+        <Route path="godowns" element={<GodownPage />} />
+        <Route path="godowns/createGodown" element={<CreateGodownPage />} />
+        <Route path="godowns/editGodown/:id" element={<EditGodownPage />} />
+        <Route path="godowns/stock/:id" element={<GodownStockPage />} />
+        <Route path="stock-transfers" element={<StockTransferPage />} />
+        <Route
+          path="stock-transfers/createTransfer"
+          element={<CreateStockTransferPage />}
+        />
         <Route path="reports/outstanding" element={<OutStandingReport />} />
       </Route>
     </Routes>

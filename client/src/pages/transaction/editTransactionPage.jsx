@@ -8,6 +8,7 @@ import { FaPlus } from "react-icons/fa6";
 
 import { useGetPartiesQuery } from "../../redux/party/partyApi";
 import { useGetProductsQuery } from "../../redux/product/productApi";
+import { useGetGodownsQuery } from "../../redux/godown/godownApi";
 import {
   useGetTransactionByIdQuery,
   useEditTransactionMutation,
@@ -20,12 +21,14 @@ const EditTransactionPage = () => {
   const { data: transaction, isLoading } = useGetTransactionByIdQuery(id);
   const { data: parties } = useGetPartiesQuery();
   const { data: products } = useGetProductsQuery();
+  const { data: godowns } = useGetGodownsQuery();
   const [editTransaction, { isLoading: isUpdating }] =
     useEditTransactionMutation();
 
   const [formData, setFormData] = useState({
     type: "purchase",
     party: "",
+    godown: "",
     products: [{ product: "", quantity: "", price: "" }],
     paidAmount: "",
     paymentMode: "cash",
@@ -37,6 +40,7 @@ const EditTransactionPage = () => {
       setFormData({
         type: transaction.type,
         party: transaction.party?._id || "",
+        godown: transaction.godown?._id || "",
         products: transaction.products.map((item) => ({
           product: item.product?._id || "",
           quantity: item.quantity,
@@ -109,6 +113,11 @@ const EditTransactionPage = () => {
 
     if (!formData.party) {
       toast.error("Please select a party");
+      return false;
+    }
+
+    if (!formData.godown) {
+      toast.error("Please select a godown");
       return false;
     }
 
@@ -218,6 +227,26 @@ const EditTransactionPage = () => {
             {filteredParties?.map((p) => (
               <option key={p._id} value={p._id}>
                 {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Godown */}
+        <div>
+          <label className="text-sm">
+            Godown {formData.type === "sale" ? "(shipping from)" : "(receiving into)"}
+          </label>
+          <select
+            name="godown"
+            value={formData.godown}
+            onChange={handleChange}
+            className="w-full border p-2 rounded mt-1"
+          >
+            <option value="">Select Godown</option>
+            {godowns?.map((g) => (
+              <option key={g._id} value={g._id}>
+                {g.name}
               </option>
             ))}
           </select>

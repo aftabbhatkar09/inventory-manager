@@ -1,6 +1,6 @@
-// Wipes Product/Party/Transaction/Payment and reloads a fresh,
-// internally-consistent dataset for manual testing: run with `npm run seed`
-// from server/.
+// Wipes Product/Party/Transaction/Payment/Godown/StockTransfer and reloads a
+// fresh, internally-consistent dataset for manual testing: run with
+// `npm run seed` from server/.
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
@@ -9,6 +9,8 @@ import Product from "./models/product.model.js";
 import Party from "./models/party.model.js";
 import Transaction from "./models/transaction.model.js";
 import Payment from "./models/payment.model.js";
+import Godown from "./models/godown.model.js";
+import StockTransfer from "./models/stockTransfer.model.js";
 
 dotenv.config();
 
@@ -18,6 +20,11 @@ const productsSeed = [
   { name: "Cooking Oil", sku: "OIL-003", category: "Grocery", unit: "ltr" },
   { name: "Cement Bag", sku: "CEM-004", category: "Construction", unit: "kg" },
   { name: "LED Bulb", sku: "LED-005", category: "Electrical", unit: "pcs" },
+];
+
+const godownsSeed = [
+  { name: "Main Warehouse", address: "Plot 14, MIDC Industrial Area" },
+  { name: "Branch Store", address: "Shop 3, Station Road" },
 ];
 
 const partiesSeed = [
@@ -49,12 +56,16 @@ const line = (product, quantity, price) => ({
 const run = async () => {
   await connectDB();
 
-  console.log("Clearing existing products, parties, transactions, and payments...");
+  console.log(
+    "Clearing existing products, parties, transactions, payments, godowns, and stock transfers...",
+  );
   await Promise.all([
     Product.deleteMany({}),
     Party.deleteMany({}),
     Transaction.deleteMany({}),
     Payment.deleteMany({}),
+    Godown.deleteMany({}),
+    StockTransfer.deleteMany({}),
   ]);
 
   console.log("Seeding products...");
@@ -64,6 +75,9 @@ const run = async () => {
   console.log("Seeding parties...");
   const [rahul, sunrise, metro, amit, global, city] =
     await Party.insertMany(partiesSeed);
+
+  console.log("Seeding godowns...");
+  const [mainWarehouse, branchStore] = await Godown.insertMany(godownsSeed);
 
   console.log("Seeding transactions...");
 
@@ -194,13 +208,32 @@ const run = async () => {
     );
     const remainingAmount = totalAmount - txn.paidAmount;
 
-    await Transaction.create({ ...txn, totalAmount, remainingAmount });
+    // All seeded transactions land in the Main Warehouse -- the stock
+    // transfer below demonstrates moving some of it to the Branch Store.
+    await Transaction.create({
+      ...txn,
+      godown: mainWarehouse._id,
+      totalAmount,
+      remainingAmount,
+    });
   }
+
+  console.log("Seeding a stock transfer...");
+  await StockTransfer.create({
+    product: notebook._id,
+    fromGodown: mainWarehouse._id,
+    toGodown: branchStore._id,
+    quantity: 20,
+    note: "Restocking branch store",
+    createdAt: dateFor(0, 20),
+  });
 
   console.log("Seed complete:");
   console.log(`  ${productsSeed.length} products`);
   console.log(`  ${partiesSeed.length} parties`);
+  console.log(`  ${godownsSeed.length} godowns`);
   console.log(`  ${transactionsSeed.length} transactions`);
+  console.log(`  1 stock transfer`);
 
   await mongoose.disconnect();
   process.exit(0);

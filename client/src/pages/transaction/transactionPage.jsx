@@ -86,6 +86,7 @@ const TransactionPage = () => {
 
                 {/* Party Name  */}
                 <p className="text-sm">Party: {txn.party?.name || "N/A"}</p>
+                <p className="text-sm">Godown: {txn.godown?.name || "N/A"}</p>
 
                 {/* Products  */}
                 <div className="text-sm">

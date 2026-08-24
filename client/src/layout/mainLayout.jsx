@@ -41,6 +41,24 @@ const MainLayout = () => {
             Products
           </NavLink>
           <NavLink
+            to="/godowns"
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              `block px-2 py-1 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`
+            }
+          >
+            Godowns
+          </NavLink>
+          <NavLink
+            to="/stock-transfers"
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              `block px-2 py-1 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`
+            }
+          >
+            Stock Transfers
+          </NavLink>
+          <NavLink
             to="/parties"
             onClick={() => setOpen(false)}
             className={({ isActive }) =>

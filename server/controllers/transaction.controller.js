@@ -1,6 +1,6 @@
 import Transaction from "../models/transaction.model.js";
 import Product from "../models/product.model.js";
-import { getProductStockById } from "../utils/stock.util.js";
+import { getProductStockInGodown } from "../utils/stock.util.js";
 
 const buildStockError = async (item, availableStock) => {
   const product = await Product.findById(item.product);
@@ -12,18 +12,23 @@ const buildStockError = async (item, availableStock) => {
 // Create transaction
 export const createTransaction = async (req, res) => {
   try {
-    const { type, party, products, paidAmount = 0, paymentMode } = req.body;
+    const { type, party, godown, products, paidAmount = 0, paymentMode } =
+      req.body;
 
-    if (!type || !party || !products || products.length === 0) {
+    if (!type || !party || !godown || !products || products.length === 0) {
       return res
         .status(400)
-        .json({ message: "Type, party and products are required" });
+        .json({ message: "Type, party, godown and products are required" });
     }
 
-    // Stock validation before sale
+    // Stock validation before sale -- checked against the specific godown
+    // this sale is shipping from, not the company-wide total.
     if (type === "sale") {
       for (const item of products) {
-        const availableStock = await getProductStockById(item.product);
+        const availableStock = await getProductStockInGodown(
+          item.product,
+          godown,
+        );
 
         if (item.quantity > availableStock) {
           return res
@@ -44,6 +49,7 @@ export const createTransaction = async (req, res) => {
     const transaction = new Transaction({
       type,
       party,
+      godown,
       products,
       totalAmount,
       paidAmount,
@@ -66,6 +72,7 @@ export const getAllTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find()
       .populate("party")
+      .populate("godown")
       .populate("products.product")
       .sort({ createdAt: -1 });
 
@@ -82,6 +89,7 @@ export const getTransactionById = async (req, res) => {
   try {
     const transaction = await Transaction.findById(req.params.id)
       .populate("party")
+      .populate("godown")
       .populate("products.product");
 
     if (!transaction) {
@@ -100,18 +108,24 @@ export const getTransactionById = async (req, res) => {
 export const updateTransaction = async (req, res) => {
   try {
     const { id } = req.params;
-    const { type, party, products, paidAmount = 0, paymentMode } = req.body;
+    const { type, party, godown, products, paidAmount = 0, paymentMode } =
+      req.body;
 
-    if (!type || !party || !products || products.length === 0) {
+    if (!type || !party || !godown || !products || products.length === 0) {
       return res
         .status(400)
-        .json({ message: "Type, party and products are required" });
+        .json({ message: "Type, party, godown and products are required" });
     }
 
-    // Stock validation before sale, excluding this transaction's own quantities
+    // Stock validation before sale, excluding this transaction's own
+    // quantities, checked against the godown it's shipping from.
     if (type === "sale") {
       for (const item of products) {
-        const availableStock = await getProductStockById(item.product, id);
+        const availableStock = await getProductStockInGodown(
+          item.product,
+          godown,
+          id,
+        );
 
         if (item.quantity > availableStock) {
           return res
@@ -134,6 +148,7 @@ export const updateTransaction = async (req, res) => {
       {
         type,
         party,
+        godown,
         products,
         totalAmount,
         paidAmount,

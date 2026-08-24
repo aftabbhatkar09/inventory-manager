@@ -14,6 +14,13 @@ const transactionSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Where this transaction's stock lands (purchase) or ships from (sale).
+    godown: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Godown",
+      required: true,
+    },
+
     products: [
       {
         product: {
