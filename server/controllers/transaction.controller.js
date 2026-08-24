@@ -9,6 +9,7 @@ import {
   assertPositiveNumber,
   assertNonNegativeNumber,
   handleControllerError,
+  parsePagination,
 } from "../utils/validate.util.js";
 
 const buildStockError = async (item, availableStock) => {
@@ -120,8 +121,7 @@ export const getAllTransactions = async (req, res) => {
 // documents so the response shape matches getAllTransactions exactly.
 export const getTransactionsPaged = async (req, res) => {
   try {
-    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const { page, limit } = parsePagination(req.query);
     const search = (req.query.search || "").trim();
 
     const basePipeline = [

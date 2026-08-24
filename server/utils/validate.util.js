@@ -70,6 +70,28 @@ export const assertOneOf = (value, allowed, label) => {
   return value;
 };
 
+export const assertMinLength = (value, minLength, label) => {
+  if (typeof value !== "string" || value.length < minLength) {
+    throw new ValidationError(
+      `${label} must be at least ${minLength} characters`,
+    );
+  }
+
+  return value;
+};
+
+// Shared page/limit parsing for every *Paged endpoint -- clamps limit to
+// maxLimit so a client can't force an unbounded query with ?limit=999999.
+export const parsePagination = (query, { defaultLimit = 10, maxLimit = 100 } = {}) => {
+  const page = Math.max(parseInt(query.page, 10) || 1, 1);
+  const limit = Math.min(
+    Math.max(parseInt(query.limit, 10) || defaultLimit, 1),
+    maxLimit,
+  );
+
+  return { page, limit };
+};
+
 // Route this into a controller's catch block so a ValidationError becomes
 // a clean 400 and anything unexpected still falls through as a 500.
 export const handleControllerError = (res, error, fallbackMessage) => {

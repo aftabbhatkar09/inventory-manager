@@ -5,6 +5,7 @@ import {
   assertOneOf,
   assertPositiveNumber,
   handleControllerError,
+  parsePagination,
 } from "../utils/validate.util.js";
 
 // Create payment
@@ -51,8 +52,7 @@ export const getAllPayments = async (req, res) => {
 // normal populate() query fetches the actual documents.
 export const getPaymentsPaged = async (req, res) => {
   try {
-    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const { page, limit } = parsePagination(req.query);
     const search = (req.query.search || "").trim();
 
     const basePipeline = [

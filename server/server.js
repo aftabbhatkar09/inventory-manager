@@ -1,6 +1,9 @@
 import connectDB from "./config/db.js";
+import { validateEnv } from "./config/validateEnv.js";
 import { ensureAdminUser } from "./utils/auth.util.js";
 import app from "./app.js";
+
+validateEnv();
 
 connectDB().then(ensureAdminUser);
 

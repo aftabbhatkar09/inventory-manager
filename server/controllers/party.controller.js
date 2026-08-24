@@ -7,6 +7,7 @@ import {
 import {
   assertFiniteNumber,
   handleControllerError,
+  parsePagination,
 } from "../utils/validate.util.js";
 
 const validatePartyTypes = (type) => {
@@ -76,8 +77,7 @@ export const getAllParties = async (req, res) => {
 // Only the Parties list page calls this one.
 export const getPartiesPaged = async (req, res) => {
   try {
-    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const { page, limit } = parsePagination(req.query);
     const search = (req.query.search || "").trim();
 
     const filter = { isDeleted: false };

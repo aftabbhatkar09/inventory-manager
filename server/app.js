@@ -5,6 +5,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 import { requireAuth } from "./middleware/auth.middleware.js";
 
@@ -21,6 +22,7 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 const app = express();
 
 // Middleware
+app.use(helmet());
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",

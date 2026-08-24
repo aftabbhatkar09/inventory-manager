@@ -31,3 +31,12 @@ describe("routes requiring auth", () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe("security headers", () => {
+  it("sets helmet's security headers on every response", async () => {
+    const res = await request(app).get("/");
+
+    expect(res.headers["x-content-type-options"]).toBe("nosniff");
+    expect(res.headers["x-powered-by"]).toBeUndefined();
+  });
+});
