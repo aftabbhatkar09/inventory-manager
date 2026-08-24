@@ -14,6 +14,7 @@ export const api = createApi({
     "Godown",
     "StockTransfer",
     "Auth",
+    "User",
   ],
   endpoints: () => ({}),
 });

@@ -14,3 +14,12 @@ export const requireAuth = (req, res, next) => {
     res.status(401).json({ message: "Session expired, please log in again" });
   }
 };
+
+// Mount after requireAuth -- relies on req.user already being set.
+export const requireSuperAdmin = (req, res, next) => {
+  if (req.user?.role !== "super_admin") {
+    return res.status(403).json({ message: "Super admin access required" });
+  }
+
+  next();
+};

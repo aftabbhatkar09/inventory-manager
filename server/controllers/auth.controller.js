@@ -29,7 +29,7 @@ export const login = async (req, res) => {
 
     res.cookie(COOKIE_NAME, token, COOKIE_OPTIONS);
 
-    res.json({ username: user.username });
+    res.json({ username: user.username, role: user.role });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
@@ -49,7 +49,7 @@ export const me = (req, res) => {
 
   try {
     const decoded = verifyToken(token);
-    res.json({ username: decoded.username });
+    res.json({ username: decoded.username, role: decoded.role });
   } catch (error) {
     res.status(401).json({ message: "Session expired" });
   }

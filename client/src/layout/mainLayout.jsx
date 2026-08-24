@@ -10,6 +10,7 @@ import {
   MdPayments,
   MdAssessment,
   MdLogout,
+  MdAdminPanelSettings,
 } from "react-icons/md";
 import { TbBuildingWarehouse, TbArrowsExchange } from "react-icons/tb";
 
@@ -26,12 +27,21 @@ const NAV_ITEMS = [
   { to: "/reports/outstanding", label: "Outstanding Reports", icon: MdAssessment },
 ];
 
+const SUPER_ADMIN_NAV_ITEM = {
+  to: "/users",
+  label: "Users",
+  icon: MdAdminPanelSettings,
+};
+
 const MainLayout = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   const { data: me } = useGetMeQuery();
   const [logout] = useLogoutMutation();
+
+  const navItems =
+    me?.role === "super_admin" ? [...NAV_ITEMS, SUPER_ADMIN_NAV_ITEM] : NAV_ITEMS;
 
   const handleLogout = async () => {
     try {
@@ -62,7 +72,7 @@ const MainLayout = () => {
         </h1>
 
         <nav className="space-y-1 flex-1 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
 
             return (

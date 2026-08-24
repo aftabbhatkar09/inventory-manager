@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "./layout/mainLayout";
 import RequireAuth from "./components/RequireAuth";
+import RequireSuperAdmin from "./components/RequireSuperAdmin";
 import RouteLoader from "./components/RouteLoader";
 
 const LoginPage = lazy(() => import("./pages/auth/loginPage"));
@@ -41,6 +42,10 @@ const CreateStockTransferPage = lazy(() =>
 );
 
 const OutStandingReport = lazy(() => import("./pages/reports/outStandingReport"));
+
+const UserPage = lazy(() => import("./pages/user/userPage"));
+const CreateUserPage = lazy(() => import("./pages/user/createUserPage"));
+const EditUserPage = lazy(() => import("./pages/user/editUserPage"));
 
 function App() {
   return (
@@ -98,6 +103,12 @@ function App() {
               path="reports/outstanding"
               element={<OutStandingReport />}
             />
+
+            <Route element={<RequireSuperAdmin />}>
+              <Route path="users" element={<UserPage />} />
+              <Route path="users/createUser" element={<CreateUserPage />} />
+              <Route path="users/editUser/:id" element={<EditUserPage />} />
+            </Route>
           </Route>
         </Route>
       </Routes>
