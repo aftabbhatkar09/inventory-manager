@@ -1,9 +1,13 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
+import { ensureAdminUser } from "./utils/auth.util.js";
+import { requireAuth } from "./middleware/auth.middleware.js";
 
+import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.route.js";
 import partyRoutes from "./routes/party.routes.js";
 import transactionRoutes from "./routes/transaction.route.js";
@@ -15,23 +19,30 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 
 dotenv.config();
 
-connectDB();
+connectDB().then(ensureAdminUser);
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
-app.use("/api/products", productRoutes);
-app.use("/api/parties", partyRoutes);
-app.use("/api/transactions", transactionRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/godowns", godownRoutes);
-app.use("/api/stock-transfers", stockTransferRoutes);
-app.use("/api/reports", outstandingReportRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/products", requireAuth, productRoutes);
+app.use("/api/parties", requireAuth, partyRoutes);
+app.use("/api/transactions", requireAuth, transactionRoutes);
+app.use("/api/payments", requireAuth, paymentRoutes);
+app.use("/api/godowns", requireAuth, godownRoutes);
+app.use("/api/stock-transfers", requireAuth, stockTransferRoutes);
+app.use("/api/reports", requireAuth, outstandingReportRoutes);
+app.use("/api/dashboard", requireAuth, dashboardRoutes);
 app.get("/", (req, res) => {
   res.send("Hello World");
 });

@@ -1,5 +1,6 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 import {
   MdSpaceDashboard,
@@ -8,8 +9,11 @@ import {
   MdReceiptLong,
   MdPayments,
   MdAssessment,
+  MdLogout,
 } from "react-icons/md";
 import { TbBuildingWarehouse, TbArrowsExchange } from "react-icons/tb";
+
+import { useGetMeQuery, useLogoutMutation } from "../redux/auth/authApi";
 
 const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: MdSpaceDashboard, end: true },
@@ -24,6 +28,19 @@ const NAV_ITEMS = [
 
 const MainLayout = () => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const { data: me } = useGetMeQuery();
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+      navigate("/login", { replace: true });
+    } catch {
+      toast.error("Failed to log out");
+    }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -44,7 +61,7 @@ const MainLayout = () => {
           Inventory Manager
         </h1>
 
-        <nav className="space-y-1">
+        <nav className="space-y-1 flex-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
 
@@ -68,6 +85,22 @@ const MainLayout = () => {
             );
           })}
         </nav>
+
+        {/* Account  */}
+        <div className="border-t border-gray-800 pt-3 px-2 space-y-2">
+          {me?.username && (
+            <p className="text-xs text-gray-400 truncate">
+              Signed in as <span className="text-gray-200">{me.username}</span>
+            </p>
+          )}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-1 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors w-full"
+          >
+            <MdLogout className="h-5 w-5 shrink-0" />
+            Log Out
+          </button>
+        </div>
       </div>
 
       {/* Main Content  */}
