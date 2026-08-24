@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 
 import User from "../models/user.model.js";
-import { signToken, verifyToken, COOKIE_NAME, COOKIE_OPTIONS } from "../utils/auth.util.js";
+import { signToken, verifyToken, COOKIE_NAME, getCookieOptions } from "../utils/auth.util.js";
 
 export const login = async (req, res) => {
   try {
@@ -27,7 +27,7 @@ export const login = async (req, res) => {
 
     const token = signToken(user);
 
-    res.cookie(COOKIE_NAME, token, COOKIE_OPTIONS);
+    res.cookie(COOKIE_NAME, token, getCookieOptions());
 
     res.json({ username: user.username, role: user.role });
   } catch (error) {
@@ -36,7 +36,7 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie(COOKIE_NAME, { httpOnly: true, sameSite: "lax" });
+  res.clearCookie(COOKIE_NAME, getCookieOptions());
   res.json({ message: "Logged out" });
 };
 

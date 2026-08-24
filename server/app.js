@@ -19,6 +19,7 @@ import stockTransferRoutes from "./routes/stockTransfer.routes.js";
 import outstandingReportRoutes from "./routes/outstandingReport.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import demoRoutes from "./routes/demo.routes.js";
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use("/api/stock-transfers", requireAuth, stockTransferRoutes);
 app.use("/api/reports", requireAuth, outstandingReportRoutes);
 app.use("/api/dashboard", requireAuth, dashboardRoutes);
 app.use("/api/users", requireAuth, userRoutes);
+app.use("/api/demo", demoRoutes);
 app.get("/", (req, res) => {
   res.send("Hello World");
 });

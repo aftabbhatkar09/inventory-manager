@@ -1,0 +1,21 @@
+name: Reset Demo Data
+
+on:
+  schedule:
+    # Every 6 hours
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger demo data reset
+        run: |
+          status=$(curl -sS -o response.json -w "%{http_code}" -X POST "${{ secrets.DEMO_RESET_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.DEMO_RESET_SECRET }}")
+          cat response.json
+          if [ "$status" -ge 400 ]; then
+            echo "Reset failed with status $status"
+            exit 1
+          fi

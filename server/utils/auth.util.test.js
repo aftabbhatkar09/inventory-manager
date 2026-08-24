@@ -1,7 +1,27 @@
 import { describe, it, expect, afterEach } from "vitest";
 
 import User from "../models/user.model.js";
-import { ensureAdminUser } from "./auth.util.js";
+import { ensureAdminUser, getCookieOptions } from "./auth.util.js";
+
+describe("getCookieOptions", () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
+  it("uses SameSite=Lax and non-Secure in development (same-site localhost)", () => {
+    process.env.NODE_ENV = "development";
+
+    expect(getCookieOptions()).toMatchObject({ sameSite: "lax", secure: false });
+  });
+
+  it("uses SameSite=None and Secure in production (cross-site client/server)", () => {
+    process.env.NODE_ENV = "production";
+
+    expect(getCookieOptions()).toMatchObject({ sameSite: "none", secure: true });
+  });
+});
 
 const ENV_KEYS = [
   "ADMIN_USERNAME",

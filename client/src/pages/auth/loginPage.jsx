@@ -10,6 +10,12 @@ const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500
 const INPUT =
   "w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
+// Only set VITE_ENABLE_DEMO_LOGIN on the public demo deployment -- these
+// credentials are meant to be publicly known there, not shown locally.
+const DEMO_LOGIN_ENABLED = import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true";
+const DEMO_USERNAME = "demo";
+const DEMO_PASSWORD = "demo1234";
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,6 +40,18 @@ const LoginPage = () => {
       await login(formData).unwrap();
 
       toast.success("Welcome back!");
+
+      navigate(location.state?.from || "/", { replace: true });
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to log in");
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    try {
+      await login({ username: DEMO_USERNAME, password: DEMO_PASSWORD }).unwrap();
+
+      toast.success("Welcome to the demo!");
 
       navigate(location.state?.from || "/", { replace: true });
     } catch (error) {
@@ -105,6 +123,26 @@ const LoginPage = () => {
           >
             {isLoading ? "Logging in..." : "Log In"}
           </button>
+
+          {DEMO_LOGIN_ENABLED && (
+            <div className="pt-4 border-t border-gray-200 space-y-3">
+              <p className="text-xs text-gray-500 text-center">
+                This is a live demo -- explore freely.
+                <br />
+                Username: <span className="font-mono">{DEMO_USERNAME}</span>{" "}
+                &middot; Password:{" "}
+                <span className="font-mono">{DEMO_PASSWORD}</span>
+              </p>
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={handleDemoLogin}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
+              >
+                Log In as Demo User
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>

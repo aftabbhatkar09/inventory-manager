@@ -13,10 +13,21 @@ export const signToken = (user) =>
 export const verifyToken = (token) => jwt.verify(token, process.env.JWT_SECRET);
 
 export const COOKIE_NAME = "token";
-export const COOKIE_OPTIONS = {
-  httpOnly: true,
-  sameSite: "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+
+// Client and server share a site in local dev (both are "localhost", just
+// different ports) but not in production (e.g. a Vercel domain talking to
+// a Render domain) -- cross-site cookies require SameSite=None, which in
+// turn requires Secure. Computed per-call, not cached at import time, so
+// it reflects whatever NODE_ENV the process actually has at request time.
+export const getCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  return {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  };
 };
 
 // Creates one user from env vars if that username doesn't exist yet.
