@@ -3,6 +3,7 @@ import express from "express";
 import {
   createProduct,
   getAllProducts,
+  getProductsPaged,
   getProductById,
   editProduct,
   deleteProduct,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.post("/createProduct", createProduct);
 router.get("/getAllProducts", getAllProducts);
+router.get("/getProductsPaged", getProductsPaged);
 router.get("/getProductById/:id", getProductById);
 router.get("/getProductStock/:id", getProductStock);
 router.put("/editProduct/:id", editProduct);

@@ -8,6 +8,13 @@ export const productApi = api.injectEndpoints({
       providesTags: ["Product"],
     }),
 
+    // Get one page of products (search + pagination)
+    getProductsPaged: builder.query({
+      query: ({ page = 1, limit = 10, search = "" } = {}) =>
+        `/products/getProductsPaged?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+      providesTags: ["Product"],
+    }),
+
     // Get product by ID
     getProductById: builder.query({
       query: (id) => `/products/getProductById/${id}`,
@@ -53,6 +60,7 @@ export const productApi = api.injectEndpoints({
 
 export const {
   useGetProductsQuery,
+  useGetProductsPagedQuery,
   useGetProductByIdQuery,
   useCreateProductMutation,
   useEditProductMutation,

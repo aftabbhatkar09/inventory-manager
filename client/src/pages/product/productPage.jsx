@@ -9,28 +9,39 @@ import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
 
 import SearchInput from "../../components/SearchInput";
+import Pagination from "../../components/Pagination";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 import {
-  useGetProductsQuery,
+  useGetProductsPagedQuery,
   useDeleteProductMutation,
 } from "../../redux/product/productApi";
+
+const PAGE_SIZE = 10;
 
 const ProductPage = () => {
   const navigate = useNavigate();
 
-  const { data: products = [], isLoading, isError } = useGetProductsQuery();
-  const [deleteProduct] = useDeleteProductMutation();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(search);
 
-  const filteredProducts = products.filter((p) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      p.name.toLowerCase().includes(q) ||
-      p.sku.toLowerCase().includes(q) ||
-      (p.category || "").toLowerCase().includes(q)
-    );
+  const {
+    data = { data: [], total: 0, totalPages: 1 },
+    isLoading,
+    isFetching,
+    isError,
+  } = useGetProductsPagedQuery({
+    page,
+    limit: PAGE_SIZE,
+    search: debouncedSearch,
   });
+  const [deleteProduct] = useDeleteProductMutation();
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this product?")) {
@@ -51,6 +62,8 @@ const ProductPage = () => {
     );
   if (isError) return <p className="text-red-600">Error loading products.</p>;
 
+  const products = data.data;
+
   return (
     <div className="space-y-6">
       {/* Header  */}
@@ -67,18 +80,20 @@ const ProductPage = () => {
 
       <SearchInput
         value={search}
-        onChange={setSearch}
+        onChange={handleSearchChange}
         placeholder="Search by name, SKU, or category"
       />
 
       {/* Product List  */}
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden">
-        {filteredProducts.length === 0 ? (
+      <div
+        className={`bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden transition-opacity ${isFetching ? "opacity-60" : ""}`}
+      >
+        {products.length === 0 ? (
           <p className="text-sm text-gray-500 py-10 text-center">
             {search ? "No products match your search." : "No products yet."}
           </p>
         ) : (
-          filteredProducts.map((product) => (
+          products.map((product) => (
             <div
               key={product._id}
               className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 p-4 hover:bg-gray-50 transition-colors"
@@ -126,6 +141,12 @@ const ProductPage = () => {
           ))
         )}
       </div>
+
+      <Pagination
+        page={data.page || page}
+        totalPages={data.totalPages}
+        onChange={setPage}
+      />
     </div>
   );
 };

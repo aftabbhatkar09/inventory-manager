@@ -9,33 +9,34 @@ import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
 
 import SearchInput from "../../components/SearchInput";
+import Pagination from "../../components/Pagination";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 import {
-  useGetPaymentsQuery,
+  useGetPaymentsPagedQuery,
   useDeletePaymentByIdMutation,
 } from "../../redux/payment/paymentApi";
+
+const PAGE_SIZE = 10;
 
 const PaymentPage = () => {
   const navigate = useNavigate();
 
-  const { data = [], isLoading } = useGetPaymentsQuery();
-  const [deletePaymentById] = useDeletePaymentByIdMutation();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(search);
 
-  const filteredData = data.filter((payment) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    const haystack = [
-      payment.party?.name,
-      payment.type,
-      payment.paymentMode,
-      payment.note,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(q);
-  });
+  const {
+    data = { data: [], total: 0, totalPages: 1 },
+    isLoading,
+    isFetching,
+  } = useGetPaymentsPagedQuery({ page, limit: PAGE_SIZE, search: debouncedSearch });
+  const [deletePaymentById] = useDeletePaymentByIdMutation();
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this payment?")) {
@@ -55,6 +56,8 @@ const PaymentPage = () => {
       </div>
     );
 
+  const payments = data.data;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -70,19 +73,21 @@ const PaymentPage = () => {
 
       <SearchInput
         value={search}
-        onChange={setSearch}
+        onChange={handleSearchChange}
         placeholder="Search by party, mode, or note"
       />
 
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden">
-        {filteredData.length === 0 ? (
+      <div
+        className={`bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden transition-opacity ${isFetching ? "opacity-60" : ""}`}
+      >
+        {payments.length === 0 ? (
           <p className="text-sm text-gray-500 py-10 text-center">
             {search
               ? "No payments match your search."
               : "No payments recorded yet."}
           </p>
         ) : (
-          filteredData.map((payment) => (
+          payments.map((payment) => (
             <div
               key={payment._id}
               className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 p-4 hover:bg-gray-50 transition-colors"
@@ -133,6 +138,12 @@ const PaymentPage = () => {
           ))
         )}
       </div>
+
+      <Pagination
+        page={data.page || page}
+        totalPages={data.totalPages}
+        onChange={setPage}
+      />
     </div>
   );
 };

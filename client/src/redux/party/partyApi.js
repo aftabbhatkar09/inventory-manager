@@ -18,6 +18,13 @@ export const partyApi = api.injectEndpoints({
       providesTags: ["Party"],
     }),
 
+    // Get one page of parties (search + pagination)
+    getPartiesPaged: builder.query({
+      query: ({ page = 1, limit = 10, search = "" } = {}) =>
+        `/parties/getPartiesPaged?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+      providesTags: ["Party"],
+    }),
+
     // Get party by id
     getPartyById: builder.query({
       query: (id) => `/parties/getPartyById/${id}`,
@@ -59,6 +66,7 @@ export const partyApi = api.injectEndpoints({
 
 export const {
   useGetPartiesQuery,
+  useGetPartiesPagedQuery,
   useGetPartyByIdQuery,
   useCreatePartyMutation,
   useEditPartyByIdMutation,

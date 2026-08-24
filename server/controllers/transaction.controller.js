@@ -114,6 +114,88 @@ export const getAllTransactions = async (req, res) => {
   }
 };
 
+// Get Transactions page (search + pagination). Search spans joined fields
+// (party/godown/product name) via aggregation to find matching, sorted,
+// paginated ids -- then a normal populate() query fetches the actual
+// documents so the response shape matches getAllTransactions exactly.
+export const getTransactionsPaged = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const search = (req.query.search || "").trim();
+
+    const basePipeline = [
+      {
+        $lookup: {
+          from: "parties",
+          localField: "party",
+          foreignField: "_id",
+          as: "partyDoc",
+        },
+      },
+      {
+        $lookup: {
+          from: "godowns",
+          localField: "godown",
+          foreignField: "_id",
+          as: "godownDoc",
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          as: "productDocs",
+        },
+      },
+    ];
+
+    if (search) {
+      const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      basePipeline.push({
+        $match: {
+          $or: [
+            { type: regex },
+            { paymentMode: regex },
+            { "partyDoc.name": regex },
+            { "godownDoc.name": regex },
+            { "productDocs.name": regex },
+          ],
+        },
+      });
+    }
+
+    const [countResult, idRows] = await Promise.all([
+      Transaction.aggregate([...basePipeline, { $count: "total" }]),
+      Transaction.aggregate([
+        ...basePipeline,
+        { $sort: { createdAt: -1 } },
+        { $skip: (page - 1) * limit },
+        { $limit: limit },
+        { $project: { _id: 1 } },
+      ]),
+    ]);
+
+    const total = countResult[0]?.total || 0;
+    const ids = idRows.map((row) => row._id);
+
+    const transactions = await Transaction.find({ _id: { $in: ids } })
+      .populate("party")
+      .populate("godown")
+      .populate("products.product");
+
+    const byId = new Map(transactions.map((t) => [t._id.toString(), t]));
+    const data = ids.map((id) => byId.get(id.toString())).filter(Boolean);
+
+    res.json({ data, total, page, totalPages: Math.max(Math.ceil(total / limit), 1) });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching transactions", error: error.message });
+  }
+};
+
 // Get transaction by ID
 export const getTransactionById = async (req, res) => {
   try {

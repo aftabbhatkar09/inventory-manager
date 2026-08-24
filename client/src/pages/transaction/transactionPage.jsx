@@ -9,9 +9,11 @@ import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
 
 import SearchInput from "../../components/SearchInput";
+import Pagination from "../../components/Pagination";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 import {
-  useGetAllTransactionsQuery,
+  useGetTransactionsPagedQuery,
   useDeleteTransactionMutation,
 } from "../../redux/transaction/transactionApi";
 
@@ -20,28 +22,30 @@ const TYPE_BADGE = {
   purchase: "bg-orange-50 text-orange-700",
 };
 
+const PAGE_SIZE = 8;
+
 const TransactionPage = () => {
   const navigate = useNavigate();
 
-  const { data = [], isLoading } = useGetAllTransactionsQuery();
-  const [deleteTransaction] = useDeleteTransactionMutation();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(search);
 
-  const filteredData = data.filter((txn) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    const haystack = [
-      txn.type,
-      txn.party?.name,
-      txn.godown?.name,
-      txn.paymentMode,
-      ...txn.products.map((p) => p.product?.name),
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(q);
+  const {
+    data = { data: [], total: 0, totalPages: 1 },
+    isLoading,
+    isFetching,
+  } = useGetTransactionsPagedQuery({
+    page,
+    limit: PAGE_SIZE,
+    search: debouncedSearch,
   });
+  const [deleteTransaction] = useDeleteTransactionMutation();
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this transaction?")) {
@@ -61,6 +65,8 @@ const TransactionPage = () => {
       </div>
     );
 
+  const transactions = data.data;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -76,19 +82,21 @@ const TransactionPage = () => {
 
       <SearchInput
         value={search}
-        onChange={setSearch}
+        onChange={handleSearchChange}
         placeholder="Search by party, product, godown, or type"
       />
 
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden">
-        {filteredData.length === 0 ? (
+      <div
+        className={`bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden transition-opacity ${isFetching ? "opacity-60" : ""}`}
+      >
+        {transactions.length === 0 ? (
           <p className="text-sm text-gray-500 py-10 text-center">
             {search
               ? "No transactions match your search."
               : "No transactions found."}
           </p>
         ) : (
-          filteredData.map((txn) => (
+          transactions.map((txn) => (
             <div
               key={txn._id}
               className="p-4 hover:bg-gray-50 transition-colors"
@@ -177,6 +185,12 @@ const TransactionPage = () => {
           ))
         )}
       </div>
+
+      <Pagination
+        page={data.page || page}
+        totalPages={data.totalPages}
+        onChange={setPage}
+      />
     </div>
   );
 };

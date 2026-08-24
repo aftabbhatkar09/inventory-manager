@@ -9,9 +9,11 @@ import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
 
 import SearchInput from "../../components/SearchInput";
+import Pagination from "../../components/Pagination";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 import {
-  useGetPartiesQuery,
+  useGetPartiesPagedQuery,
   useDeletePartyByIdMutation,
 } from "../../redux/party/partyApi";
 
@@ -20,22 +22,27 @@ const TYPE_BADGE = {
   supplier: "bg-orange-50 text-orange-700",
 };
 
+const PAGE_SIZE = 10;
+
 const PartyPage = () => {
   const navigate = useNavigate();
 
-  const { data, isLoading, error } = useGetPartiesQuery();
-  const [deletePartyById] = useDeletePartyByIdMutation();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(search);
 
-  const filteredParties = (data || []).filter((party) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      party.name.toLowerCase().includes(q) ||
-      (party.phone || "").toLowerCase().includes(q) ||
-      party.type.join(" ").toLowerCase().includes(q)
-    );
-  });
+  const {
+    data = { data: [], total: 0, totalPages: 1 },
+    isLoading,
+    isFetching,
+    error,
+  } = useGetPartiesPagedQuery({ page, limit: PAGE_SIZE, search: debouncedSearch });
+  const [deletePartyById] = useDeletePartyByIdMutation();
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this party?")) {
@@ -56,6 +63,8 @@ const PartyPage = () => {
     );
   if (error) return <p className="text-red-600">Error fetching parties.</p>;
 
+  const parties = data.data;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -71,18 +80,20 @@ const PartyPage = () => {
 
       <SearchInput
         value={search}
-        onChange={setSearch}
+        onChange={handleSearchChange}
         placeholder="Search by name, phone, or type"
       />
 
       {/* Party List  */}
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden">
-        {filteredParties.length === 0 ? (
+      <div
+        className={`bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden transition-opacity ${isFetching ? "opacity-60" : ""}`}
+      >
+        {parties.length === 0 ? (
           <p className="text-sm text-gray-500 py-10 text-center">
             {search ? "No parties match your search." : "No parties yet."}
           </p>
         ) : (
-          filteredParties.map((party) => (
+          parties.map((party) => (
             <div
               key={party._id}
               className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 p-4 hover:bg-gray-50 transition-colors"
@@ -132,6 +143,12 @@ const PartyPage = () => {
           ))
         )}
       </div>
+
+      <Pagination
+        page={data.page || page}
+        totalPages={data.totalPages}
+        onChange={setPage}
+      />
     </div>
   );
 };

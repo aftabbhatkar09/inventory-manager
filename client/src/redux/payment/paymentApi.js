@@ -18,6 +18,13 @@ export const paymentApi = api.injectEndpoints({
       providesTags: ["Payment"],
     }),
 
+    // Get one page of payments (search + pagination)
+    getPaymentsPaged: builder.query({
+      query: ({ page = 1, limit = 10, search = "" } = {}) =>
+        `/payments/getPaymentsPaged?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+      providesTags: ["Payment"],
+    }),
+
     // Get payment by id
     getPaymentById: builder.query({
       query: (id) => `/payments/getPaymentById/${id}`,
@@ -48,6 +55,7 @@ export const paymentApi = api.injectEndpoints({
 export const {
   useCreatePaymentMutation,
   useGetPaymentsQuery,
+  useGetPaymentsPagedQuery,
   useGetPaymentByIdQuery,
   useEditPaymentByIdMutation,
   useDeletePaymentByIdMutation,

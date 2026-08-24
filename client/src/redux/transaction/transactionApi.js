@@ -16,6 +16,11 @@ export const transactionApi = api.injectEndpoints({
       }),
       providesTags: ["Transaction", "Product", "Party"],
     }),
+    getTransactionsPaged: builder.query({
+      query: ({ page = 1, limit = 10, search = "" } = {}) =>
+        `/transactions/getTransactionsPaged?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+      providesTags: ["Transaction", "Product", "Party"],
+    }),
     getTransactionById: builder.query({
       query: (id) => `/transactions/getTransactionById/${id}`,
       providesTags: ["Transaction"],
@@ -41,6 +46,7 @@ export const transactionApi = api.injectEndpoints({
 export const {
   useCreateTransactionMutation,
   useGetAllTransactionsQuery,
+  useGetTransactionsPagedQuery,
   useGetTransactionByIdQuery,
   useEditTransactionMutation,
   useDeleteTransactionMutation,

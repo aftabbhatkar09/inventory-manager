@@ -3,6 +3,7 @@ import express from "express";
 import {
   createParty,
   getAllParties,
+  getPartiesPaged,
   getPartyById,
   updateParty,
   deleteParty,
@@ -14,6 +15,7 @@ const router = express.Router();
 
 router.post("/createParty", createParty);
 router.get("/getAllParties", getAllParties);
+router.get("/getPartiesPaged", getPartiesPaged);
 router.get("/getPartyById/:id", getPartyById);
 router.put("/editParty/:id", updateParty);
 router.delete("/deleteParty/:id", deleteParty);

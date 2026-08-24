@@ -82,6 +82,65 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+// Get Products page (search + pagination) -- additive alongside
+// getAllProducts, which every dropdown/dashboard consumer still uses
+// unpaginated. Only the Products list page calls this one.
+export const getProductsPaged = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const search = (req.query.search || "").trim();
+
+    const filter = { isDeleted: false };
+
+    if (search) {
+      const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      filter.$or = [{ name: regex }, { sku: regex }, { category: regex }];
+    }
+
+    const [total, products, stockMap, godownStockMap, godowns] = await Promise.all([
+      Product.countDocuments(filter),
+      Product.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      getStockMap(),
+      getGodownStockMap(),
+      Godown.find({ isDeleted: false }),
+    ]);
+
+    const godownNameById = {};
+    godowns.forEach((g) => {
+      godownNameById[g._id.toString()] = g.name;
+    });
+
+    const data = products.map((product) => {
+      const productId = product._id.toString();
+      const perGodown = godownStockMap[productId] || {};
+
+      const godownStock = Object.entries(perGodown)
+        .filter(([, quantity]) => quantity !== 0)
+        .map(([godownId, quantity]) => ({
+          godownId,
+          godownName: godownNameById[godownId] || "Unknown Godown",
+          quantity,
+        }));
+
+      return {
+        ...product.toObject(),
+        stock: stockMap[productId] || 0,
+        godownStock,
+      };
+    });
+
+    res.json({ data, total, page, totalPages: Math.max(Math.ceil(total / limit), 1) });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching products", error: error.message });
+  }
+};
+
 // Get Product By ID
 export const getProductById = async (req, res) => {
   try {

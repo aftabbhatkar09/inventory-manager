@@ -3,6 +3,7 @@ import express from "express";
 import {
   createTransaction,
   getAllTransactions,
+  getTransactionsPaged,
   getTransactionById,
   updateTransaction,
   deleteTransaction,
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.post("/createTransaction", createTransaction);
 router.get("/getAllTransactions", getAllTransactions);
+router.get("/getTransactionsPaged", getTransactionsPaged);
 router.get("/getTransactionById/:id", getTransactionById);
 router.put("/editTransaction/:id", updateTransaction);
 router.delete("/deleteTransaction/:id", deleteTransaction);

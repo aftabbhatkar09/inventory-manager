@@ -71,6 +71,43 @@ export const getAllParties = async (req, res) => {
   }
 };
 
+// Get Parties page (search + pagination) -- additive alongside
+// getAllParties, which every dropdown consumer still uses unpaginated.
+// Only the Parties list page calls this one.
+export const getPartiesPaged = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const search = (req.query.search || "").trim();
+
+    const filter = { isDeleted: false };
+
+    if (search) {
+      const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      filter.$or = [{ name: regex }, { phone: regex }, { type: regex }];
+    }
+
+    const [total, parties] = await Promise.all([
+      Party.countDocuments(filter),
+      Party.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+    ]);
+
+    res.json({
+      data: parties,
+      total,
+      page,
+      totalPages: Math.max(Math.ceil(total / limit), 1),
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching parties", error: error.message });
+  }
+};
+
 // Get Party By ID
 export const getPartyById = async (req, res) => {
   try {
