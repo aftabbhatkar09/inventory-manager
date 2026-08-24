@@ -25,6 +25,8 @@ const OutStandingReport = () => {
               <th className="border p-2 text-right">Opening</th>
               <th className="border p-2 text-right">Credit</th>
               <th className="border p-2 text-right">Debit</th>
+              <th className="border p-2 text-right">Paid In</th>
+              <th className="border p-2 text-right">Paid Out</th>
               <th className="border p-2 text-right">Receivable</th>
               <th className="border p-2 text-right">Payable</th>
             </tr>
@@ -54,6 +56,12 @@ const OutStandingReport = () => {
                   </td>
                   <td className="border p-2 text-right">
                     ₹{party.totalDebit.toLocaleString()}
+                  </td>
+                  <td className="border p-2 text-right">
+                    ₹{party.paymentsReceived.toLocaleString()}
+                  </td>
+                  <td className="border p-2 text-right">
+                    ₹{party.paymentsPaid.toLocaleString()}
                   </td>
                   <td className="border p-2 text-right font-semibold text-green-600">
                     {party.balance > 0

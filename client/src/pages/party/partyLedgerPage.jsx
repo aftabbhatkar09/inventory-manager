@@ -8,6 +8,14 @@ import {
   useGetPartyLedgerEntriesQuery,
 } from "../../redux/party/partyApi";
 
+const TYPE_LABELS = {
+  sale: "Sale",
+  purchase: "Purchase",
+  opening: "Opening",
+  received: "Payment In",
+  paid: "Payment Out",
+};
+
 const PartyLedgerPage = () => {
   const navigate = useNavigate();
 
@@ -52,6 +60,14 @@ const PartyLedgerPage = () => {
         </p>
 
         <p>
+          <strong>Payments Received: </strong> ₹{summary?.paymentsReceived}
+        </p>
+
+        <p>
+          <strong>Payments Paid: </strong> ₹{summary?.paymentsPaid}
+        </p>
+
+        <p>
           <strong>Balance:</strong>{" "}
           <span
             className={
@@ -86,22 +102,26 @@ const PartyLedgerPage = () => {
                 <td>
                   {entry.date ? new Date(entry.date).toLocaleDateString() : "-"}
                 </td>
-                <td className="capitalize">{entry.type}</td>
+                <td>{TYPE_LABELS[entry.type] || entry.type}</td>
                 <td>{entry.description}</td>
                 <td className="text-right">₹{entry.totalAmount}</td>
                 <td className="text-right">₹{entry.paidAmount}</td>
                 <td
                   className={`text-right ${
-                    entry.remainingAmount < 0
-                      ? "text-green-600"
-                      : entry.type === "sale"
+                    entry.kind === "payment"
+                      ? ""
+                      : entry.remainingAmount < 0
                         ? "text-green-600"
-                        : entry.type === "purchase"
-                          ? "text-red-600"
-                          : ""
+                        : entry.type === "sale"
+                          ? "text-green-600"
+                          : entry.type === "purchase"
+                            ? "text-red-600"
+                            : ""
                   }`}
                 >
-                  {entry.remainingAmount < 0 ? (
+                  {entry.kind === "payment" ? (
+                    "-"
+                  ) : entry.remainingAmount < 0 ? (
                     <>Advance ₹{Math.abs(entry.remainingAmount)}</>
                   ) : (
                     <>

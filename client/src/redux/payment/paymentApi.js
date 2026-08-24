@@ -1,0 +1,54 @@
+import { api } from "../api/apiSlice";
+
+export const paymentApi = api.injectEndpoints({
+  endpoints: (builder) => ({
+    // Create payment
+    createPayment: builder.mutation({
+      query: (data) => ({
+        url: "/payments/createPayment",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Payment", "Party"],
+    }),
+
+    // Get all payments
+    getPayments: builder.query({
+      query: () => "/payments/getAllPayments",
+      providesTags: ["Payment"],
+    }),
+
+    // Get payment by id
+    getPaymentById: builder.query({
+      query: (id) => `/payments/getPaymentById/${id}`,
+      providesTags: ["Payment"],
+    }),
+
+    // Update payment
+    editPaymentById: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/payments/editPayment/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Payment", "Party"],
+    }),
+
+    // Delete payment
+    deletePaymentById: builder.mutation({
+      query: (id) => ({
+        url: `/payments/deletePayment/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Payment", "Party"],
+    }),
+  }),
+});
+
+export const {
+  useCreatePaymentMutation,
+  useGetPaymentsQuery,
+  useGetPaymentByIdQuery,
+  useEditPaymentByIdMutation,
+  useDeletePaymentByIdMutation,
+} = paymentApi;

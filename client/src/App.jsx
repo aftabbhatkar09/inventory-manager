@@ -17,6 +17,10 @@ import TransactionPage from "./pages/transaction/transactionPage";
 import CreateTransactionPage from "./pages/transaction/createTransactionPage";
 import EditTransactionPage from "./pages/transaction/editTransactionPage";
 
+import PaymentPage from "./pages/payment/paymentPage";
+import CreatePaymentPage from "./pages/payment/createPaymentPage";
+import EditPaymentPage from "./pages/payment/editPaymentPage";
+
 import OutStandingReport from "./pages/reports/outStandingReport";
 
 function App() {
@@ -40,6 +44,9 @@ function App() {
           path="transactions/editTransaction/:id"
           element={<EditTransactionPage />}
         />
+        <Route path="payments" element={<PaymentPage />} />
+        <Route path="payments/createPayment" element={<CreatePaymentPage />} />
+        <Route path="payments/editPayment/:id" element={<EditPaymentPage />} />
         <Route path="reports/outstanding" element={<OutStandingReport />} />
       </Route>
     </Routes>

@@ -59,6 +59,15 @@ const MainLayout = () => {
             Transactions
           </NavLink>
           <NavLink
+            to="/payments"
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              `block px-2 py-1 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`
+            }
+          >
+            Payments
+          </NavLink>
+          <NavLink
             to="/reports/outstanding"
             onClick={() => setOpen(false)}
             className={({ isActive }) =>

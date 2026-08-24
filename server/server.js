@@ -7,6 +7,7 @@ import connectDB from "./config/db.js";
 import productRoutes from "./routes/product.route.js";
 import partyRoutes from "./routes/party.routes.js";
 import transactionRoutes from "./routes/transaction.route.js";
+import paymentRoutes from "./routes/payment.routes.js";
 import outstandingReportRoutes from "./routes/outstandingReport.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use("/api/products", productRoutes);
 app.use("/api/parties", partyRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/payments", paymentRoutes);
 app.use("/api/reports", outstandingReportRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.get("/", (req, res) => {

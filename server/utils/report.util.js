@@ -2,6 +2,10 @@ import Party from "../models/party.model.js";
 
 // Per-party outstanding summary, starting from Party (not Transaction) so a
 // party with only an opening balance and no transactions yet still appears.
+//
+// balance = openingBalance
+//         + totalCredit (unpaid from sales)   - totalDebit (unpaid from purchases)
+//         + paymentsPaid (money we handed out) - paymentsReceived (money we collected)
 export const getOutstandingSummary = async () => {
   const report = await Party.aggregate([
     { $match: { isDeleted: false } },
@@ -11,6 +15,14 @@ export const getOutstandingSummary = async () => {
         localField: "_id",
         foreignField: "party",
         as: "transactions",
+      },
+    },
+    {
+      $lookup: {
+        from: "payments",
+        localField: "_id",
+        foreignField: "party",
+        as: "payments",
       },
     },
     {
@@ -45,13 +57,37 @@ export const getOutstandingSummary = async () => {
             },
           },
         },
+        paymentsReceived: {
+          $sum: {
+            $map: {
+              input: "$payments",
+              as: "p",
+              in: {
+                $cond: [{ $eq: ["$$p.type", "received"] }, "$$p.amount", 0],
+              },
+            },
+          },
+        },
+        paymentsPaid: {
+          $sum: {
+            $map: {
+              input: "$payments",
+              as: "p",
+              in: { $cond: [{ $eq: ["$$p.type", "paid"] }, "$$p.amount", 0] },
+            },
+          },
+        },
         openingBalance: { $ifNull: ["$openingBalance", 0] },
       },
     },
     {
       $addFields: {
         balance: {
-          $add: ["$openingBalance", { $subtract: ["$totalCredit", "$totalDebit"] }],
+          $add: [
+            "$openingBalance",
+            { $subtract: ["$totalCredit", "$totalDebit"] },
+            { $subtract: ["$paymentsPaid", "$paymentsReceived"] },
+          ],
         },
       },
     },
@@ -65,6 +101,8 @@ export const getOutstandingSummary = async () => {
         openingBalance: 1,
         totalCredit: 1,
         totalDebit: 1,
+        paymentsReceived: 1,
+        paymentsPaid: 1,
         balance: 1,
       },
     },
