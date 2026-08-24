@@ -8,7 +8,7 @@ import {
 // Create Party
 export const createParty = async (req, res) => {
   try {
-    const { name, phone, email, address, type } = req.body;
+    const { name, phone, email, address, type, openingBalance } = req.body;
 
     if (!name || !type || type.length === 0) {
       return res
@@ -22,6 +22,7 @@ export const createParty = async (req, res) => {
       email,
       address,
       type,
+      openingBalance,
     });
 
     const savedParty = await party.save();
@@ -71,7 +72,7 @@ export const getPartyById = async (req, res) => {
 export const updateParty = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, phone, email, address, type } = req.body;
+    const { name, phone, email, address, type, openingBalance } = req.body;
 
     if (!type || type.length === 0) {
       return res.status(400).json({ message: "Atleast one type is required" });
@@ -79,7 +80,7 @@ export const updateParty = async (req, res) => {
 
     const updatedParty = await Party.findByIdAndUpdate(
       id,
-      { name, phone, email, address, type },
+      { name, phone, email, address, type, openingBalance },
       { new: true, runValidators: true },
     );
 

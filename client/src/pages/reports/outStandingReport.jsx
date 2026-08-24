@@ -22,6 +22,7 @@ const OutStandingReport = () => {
               <th className="border p-2 text-left">Party Name</th>
               <th className="border p-2 text-left">Phone</th>
               <th className="border p-2 text-left">Type</th>
+              <th className="border p-2 text-right">Opening</th>
               <th className="border p-2 text-right">Credit</th>
               <th className="border p-2 text-right">Debit</th>
               <th className="border p-2 text-right">Balance</th>
@@ -43,6 +44,9 @@ const OutStandingReport = () => {
                   <td className="border p-2 text-left">{party.phone}</td>
                   <td className="border p-2 text-left">
                     {party.type.join(", ")}
+                  </td>
+                  <td className="border p-2 text-right">
+                    ₹{party.openingBalance.toLocaleString()}
                   </td>
                   <td className="border p-2 text-right">
                     ₹{party.totalCredit.toLocaleString()}

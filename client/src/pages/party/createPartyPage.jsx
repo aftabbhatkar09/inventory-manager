@@ -17,6 +17,7 @@ const CreatePartyPage = () => {
     email: "",
     address: "",
     type: [],
+    openingBalance: 0,
   });
 
   const handleChange = (e) => {
@@ -67,6 +68,7 @@ const CreatePartyPage = () => {
           phone: "",
           email: "",
           address: "",
+          openingBalance: 0,
         });
       } else {
         // Go back to list page
@@ -134,6 +136,21 @@ const CreatePartyPage = () => {
           <input
             name="address"
             value={formData.address}
+            onChange={handleChange}
+            className="w-full border p-2 rounded mt-1"
+          />
+        </div>
+
+        {/* Opening Balance  */}
+        <div>
+          <label className="text-sm text-gray-600">
+            Opening Balance (positive = they owe you, negative = you owe
+            them)
+          </label>
+          <input
+            type="number"
+            name="openingBalance"
+            value={formData.openingBalance}
             onChange={handleChange}
             className="w-full border p-2 rounded mt-1"
           />

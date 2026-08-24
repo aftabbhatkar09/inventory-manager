@@ -38,7 +38,11 @@ const PartyLedgerPage = () => {
       </div>
 
       {/* Summary  */}
-      <div className="bg-white p-4 rounded shadow flex justify-between space-y-3">
+      <div className="bg-white p-4 rounded shadow flex justify-between space-y-3 flex-wrap gap-2">
+        <p>
+          <strong>Opening Balance: </strong> ₹{summary?.openingBalance}
+        </p>
+
         <p>
           <strong>Total Credit: </strong> ₹{summary?.totalCredit}
         </p>
@@ -68,10 +72,10 @@ const PartyLedgerPage = () => {
             <tr className="border-b">
               <th className="text-left">Date</th>
               <th className="text-left">Type</th>
-              <th className="text-left">Product</th>
-              <th className="text-center">Qty</th>
-              <th className="text-right">Price</th>
-              <th className="text-right">Amount</th>
+              <th className="text-left">Details</th>
+              <th className="text-right">Total</th>
+              <th className="text-right">Paid</th>
+              <th className="text-right">Remaining</th>
               <th className="text-right">Balance</th>
             </tr>
           </thead>
@@ -79,15 +83,22 @@ const PartyLedgerPage = () => {
           <tbody>
             {entries.map((entry) => (
               <tr key={entry._id} className="border-b">
-                <td>{new Date(entry.date).toLocaleDateString()}</td>
+                <td>
+                  {entry.date ? new Date(entry.date).toLocaleDateString() : "-"}
+                </td>
                 <td className="capitalize">{entry.type}</td>
-                <td>{entry.productName}</td>
-                <td className="text-center">{entry.quantity}</td>
-                <td className="text-right">₹{entry.price}</td>
+                <td>{entry.description}</td>
+                <td className="text-right">₹{entry.totalAmount}</td>
+                <td className="text-right">₹{entry.paidAmount}</td>
                 <td
-                  className={`text-right ${entry.type === "sale" ? "text-green-600" : "text-red-600"}`}
+                  className={`text-right ${entry.type === "sale" ? "text-green-600" : entry.type === "purchase" ? "text-red-600" : ""}`}
                 >
-                  {entry.type === "sale" ? "+" : "-"}₹{entry.amount}
+                  {entry.type === "sale"
+                    ? "+"
+                    : entry.type === "purchase"
+                      ? "-"
+                      : ""}
+                  ₹{entry.remainingAmount}
                 </td>
                 <td className="text-right">₹{entry.balance}</td>
               </tr>

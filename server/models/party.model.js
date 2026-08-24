@@ -19,6 +19,12 @@ const partySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // Balance carried forward from before this party existed in the system.
+    // Positive = they owe the business (receivable), negative = the business owes them (payable).
+    openingBalance: {
+      type: Number,
+      default: 0,
+    },
     // Multi type support: buyer, seller, both
     type: {
       type: [String],

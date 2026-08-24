@@ -22,6 +22,7 @@ const EditPartyPage = () => {
     email: "",
     address: "",
     type: [],
+    openingBalance: 0,
   });
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const EditPartyPage = () => {
         email: party.email || "",
         address: party.address || "",
         type: party.type || [],
+        openingBalance: party.openingBalance || 0,
       });
     }
   }, [party]);
@@ -142,6 +144,21 @@ const EditPartyPage = () => {
           <input
             name="address"
             value={formData.address}
+            onChange={handleChange}
+            className="w-full border p-2 mt-1"
+          />
+        </div>
+
+        {/* Opening Balance  */}
+        <div>
+          <label className="text-sm text-gray-600">
+            Opening Balance (positive = they owe you, negative = you owe
+            them)
+          </label>
+          <input
+            type="number"
+            name="openingBalance"
+            value={formData.openingBalance}
             onChange={handleChange}
             className="w-full border p-2 mt-1"
           />

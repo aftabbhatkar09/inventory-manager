@@ -1,6 +1,8 @@
 import Transactions from "../models/transaction.model.js";
+import Party from "../models/party.model.js";
 
 export const getPartyLedger = async (partyId) => {
+  const party = await Party.findById(partyId);
   const transactions = await Transactions.find({ party: partyId });
 
   let totalCredit = 0;
@@ -14,46 +16,62 @@ export const getPartyLedger = async (partyId) => {
     }
   });
 
-  const balance = totalCredit - totalDebit;
+  const openingBalance = party?.openingBalance || 0;
+  const balance = openingBalance + totalCredit - totalDebit;
 
   return {
+    openingBalance,
     totalCredit,
     totalDebit,
     balance,
   };
 };
 
+// One entry per transaction (not per product line), with the running balance
+// driven by remainingAmount so it always agrees with getPartyLedger's summary.
 export const getPartyLedgerWithEntries = async (partyId) => {
+  const party = await Party.findById(partyId);
   const transactions = await Transactions.find({ party: partyId })
     .populate("products.product")
     .sort({
       createdAt: 1,
     });
 
-  let runningBalance = 0;
+  let runningBalance = party?.openingBalance || 0;
 
   const entries = [];
 
+  if (runningBalance !== 0) {
+    entries.push({
+      _id: "opening-balance",
+      date: party?.createdAt,
+      type: "opening",
+      description: "Opening Balance",
+      totalAmount: runningBalance,
+      paidAmount: 0,
+      remainingAmount: runningBalance,
+      balance: runningBalance,
+    });
+  }
+
   transactions.forEach((txn) => {
-    txn.products.forEach((item) => {
-      const amount = item.quantity * item.price;
+    if (txn.type === "sale") {
+      runningBalance += txn.remainingAmount;
+    } else {
+      runningBalance -= txn.remainingAmount;
+    }
 
-      if (txn.type === "sale") {
-        runningBalance += amount;
-      } else {
-        runningBalance -= amount;
-      }
-
-      entries.push({
-        _id: txn._id,
-        date: txn.createdAt,
-        type: txn.type,
-        productName: item.product.name,
-        quantity: item.quantity,
-        price: item.price,
-        amount,
-        balance: runningBalance,
-      });
+    entries.push({
+      _id: txn._id,
+      date: txn.createdAt,
+      type: txn.type,
+      description: txn.products
+        .map((item) => `${item.product?.name || "Unknown product"} x${item.quantity}`)
+        .join(", "),
+      totalAmount: txn.totalAmount,
+      paidAmount: txn.paidAmount,
+      remainingAmount: txn.remainingAmount,
+      balance: runningBalance,
     });
   });
 
