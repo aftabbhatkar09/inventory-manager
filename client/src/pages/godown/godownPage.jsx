@@ -35,7 +35,7 @@ const GodownPage = () => {
         <HashLoader color="#4b6fee" />
       </div>
     );
-  if (isError) return <p>Error loading godowns</p>;
+  if (isError) return <p className="text-red-600">Error loading godowns.</p>;
 
   return (
     <div className="space-y-6">
@@ -44,47 +44,57 @@ const GodownPage = () => {
 
         <button
           onClick={() => navigate("/godowns/createGodown")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <FaPlus className="h-5 w-5" /> Add Godown
+          <FaPlus className="h-4 w-4" /> Add Godown
         </button>
       </div>
 
-      <div className="bg-gray-50 rounded-xl shadow-md p-4">
-        <div className="space-y-3">
-          {godowns.map((godown) => (
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 divide-y divide-gray-100 overflow-hidden">
+        {godowns.length === 0 ? (
+          <p className="text-sm text-gray-500 py-10 text-center">
+            No godowns yet.
+          </p>
+        ) : (
+          godowns.map((godown) => (
             <div
               key={godown._id}
-              className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 border p-3 rounded-lg hover:shadow transition"
+              className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 p-4 hover:bg-gray-50 transition-colors"
             >
               <div>
-                <p className="font-medium">{godown.name}</p>
+                <p className="font-medium text-gray-900">{godown.name}</p>
                 <p className="text-sm text-gray-500">
                   {godown.address || "No address"}
                 </p>
               </div>
 
-              <div className="flex flex-col md:flex-row md:items-center gap-4">
+              <div className="flex items-center gap-1">
                 <button
                   onClick={() => navigate(`/godowns/stock/${godown._id}`)}
-                  className="text-blue-600 hover:text-blue-700 text-md font-semibold"
+                  className="text-blue-600 hover:text-blue-700 text-sm font-semibold px-3 py-2 rounded-lg hover:bg-blue-50 transition"
                 >
                   View Stock
                 </button>
 
                 <button
                   onClick={() => navigate(`/godowns/editGodown/${godown._id}`)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition"
+                  aria-label="Edit godown"
                 >
-                  <TbEdit className="text-green-600 h-6 w-6" />
+                  <TbEdit className="text-green-600 h-5 w-5" />
                 </button>
 
-                <button onClick={() => handleDelete(godown._id)}>
-                  <MdOutlineDeleteForever className="text-red-600 h-6 w-6" />
+                <button
+                  onClick={() => handleDelete(godown._id)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition"
+                  aria-label="Delete godown"
+                >
+                  <MdOutlineDeleteForever className="text-red-600 h-5 w-5" />
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -11,6 +11,10 @@ import {
 } from "../../redux/godown/godownApi";
 import { useCreateTransferMutation } from "../../redux/stockTransfer/stockTransferApi";
 
+const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
+const INPUT =
+  "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+
 const CreateStockTransferPage = () => {
   const navigate = useNavigate();
 
@@ -125,30 +129,30 @@ const CreateStockTransferPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-2">
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Transfer Stock</h1>
 
         <button
           onClick={() => navigate("/stock-transfers")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <MdOutlineKeyboardBackspace className="h-6 w-6" /> Back
+          <MdOutlineKeyboardBackspace className="h-5 w-5" /> Back
         </button>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-4 md:p-6 rounded-xl shadow-md space-y-4"
+        className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 md:p-8 space-y-5"
       >
         {/* Product */}
         <div>
-          <label className="text-sm">Product</label>
+          <label className={LABEL}>Product</label>
           <select
             name="product"
             value={formData.product}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           >
             <option value="">Select Product</option>
             {products?.map((p) => (
@@ -161,12 +165,12 @@ const CreateStockTransferPage = () => {
 
         {/* From Godown */}
         <div>
-          <label className="text-sm">From Godown</label>
+          <label className={LABEL}>From Godown</label>
           <select
             name="fromGodown"
             value={formData.fromGodown}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           >
             <option value="">Select Source Godown</option>
             {fromGodowns?.map((g) => (
@@ -176,12 +180,12 @@ const CreateStockTransferPage = () => {
             ))}
           </select>
           {formData.product && fromGodowns?.length === 0 && (
-            <p className="text-xs text-red-600 mt-1">
+            <p className="text-xs text-red-600 mt-1.5">
               No godown currently has stock of this product.
             </p>
           )}
           {formData.fromGodown && formData.product && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1.5">
               Available: {availableQuantity ?? 0}
             </p>
           )}
@@ -189,12 +193,12 @@ const CreateStockTransferPage = () => {
 
         {/* To Godown */}
         <div>
-          <label className="text-sm">To Godown</label>
+          <label className={LABEL}>To Godown</label>
           <select
             name="toGodown"
             value={formData.toGodown}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           >
             <option value="">Select Destination Godown</option>
             {toGodowns?.map((g) => (
@@ -207,33 +211,33 @@ const CreateStockTransferPage = () => {
 
         {/* Quantity */}
         <div>
-          <label className="text-sm">Quantity</label>
+          <label className={LABEL}>Quantity</label>
           <input
             type="number"
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
             placeholder="Enter quantity"
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         {/* Note */}
         <div>
-          <label className="text-sm">Note (optional)</label>
+          <label className={LABEL}>Note (optional)</label>
           <input
             name="note"
             value={formData.note}
             onChange={handleChange}
             placeholder="e.g. restocking branch"
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-blue-600 text-md font-semibold hover:bg-blue-700 text-white py-2 md:py-3 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white py-2.5 md:py-3 rounded-lg transition disabled:opacity-60"
         >
           {isLoading ? "Transferring..." : "Transfer Stock"}
         </button>

@@ -15,6 +15,11 @@ import {
   useDeleteTransactionMutation,
 } from "../../redux/transaction/transactionApi";
 
+const TYPE_BADGE = {
+  sale: "bg-blue-50 text-blue-700",
+  purchase: "bg-orange-50 text-orange-700",
+};
+
 const TransactionPage = () => {
   const navigate = useNavigate();
 
@@ -62,10 +67,10 @@ const TransactionPage = () => {
         <h1 className="text-xl font-bold">Transactions</h1>
 
         <button
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
           onClick={() => navigate("/transactions/createTransaction")}
         >
-          <FaPlus className="h-5 w-5" /> Create Transaction
+          <FaPlus className="h-4 w-4" /> Create Transaction
         </button>
       </div>
 
@@ -75,78 +80,101 @@ const TransactionPage = () => {
         placeholder="Search by party, product, godown, or type"
       />
 
-      <div className="bg-white rounded-xl shadow p-4 space-y-4">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 divide-y divide-gray-100 overflow-hidden">
         {filteredData.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">
+          <p className="text-sm text-gray-500 py-10 text-center">
             {search
               ? "No transactions match your search."
               : "No transactions found."}
           </p>
         ) : (
-          <div>
-            {filteredData.map((txn) => (
-              <div
-                key={txn._id}
-                className="bg-gray-100 rounded-xl shadow p-4 space-y-4 mb-4"
-              >
-                {/* Header  */}
-                <div className="flex justify-between items-center">
-                  <p className="font-semibold">
-                    Type: {txn.type.toUpperCase()}
+          filteredData.map((txn) => (
+            <div
+              key={txn._id}
+              className="p-4 hover:bg-gray-50 transition-colors"
+            >
+              {/* Header  */}
+              <div className="flex justify-between items-start gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full uppercase ${TYPE_BADGE[txn.type] || "bg-gray-100 text-gray-600"}`}
+                  >
+                    {txn.type}
+                  </span>
+                  <p className="font-medium text-gray-900">
+                    {txn.party?.name || "N/A"}
+                  </p>
+                  <span className="text-xs text-gray-400">
+                    · {txn.godown?.name || "N/A"}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <p className="text-xs text-gray-400 mr-2">
+                    {new Date(txn.createdAt).toLocaleDateString()}
                   </p>
 
-                  <div className="flex items-center gap-4">
-                    <p className="text-sm text-gray-500">
-                      {new Date(txn.createdAt).toLocaleDateString()}
-                    </p>
+                  <button
+                    onClick={() =>
+                      navigate(`/transactions/editTransaction/${txn._id}`)
+                    }
+                    className="p-2 rounded-lg hover:bg-gray-100 transition"
+                    aria-label="Edit transaction"
+                  >
+                    <TbEdit className="text-green-600 h-5 w-5" />
+                  </button>
 
-                    <button
-                      onClick={() =>
-                        navigate(`/transactions/editTransaction/${txn._id}`)
-                      }
-                    >
-                      <TbEdit className="text-green-600 h-6 w-6 hover:text-green-700" />
-                    </button>
-
-                    <button onClick={() => handleDelete(txn._id)}>
-                      <MdOutlineDeleteForever className="text-red-600 h-6 w-6 hover:text-red-700" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleDelete(txn._id)}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition"
+                    aria-label="Delete transaction"
+                  >
+                    <MdOutlineDeleteForever className="text-red-600 h-5 w-5" />
+                  </button>
                 </div>
-
-                {/* Party Name  */}
-                <p className="text-sm">Party: {txn.party?.name || "N/A"}</p>
-                <p className="text-sm">Godown: {txn.godown?.name || "N/A"}</p>
-
-                {/* Products  */}
-                <div className="text-sm">
-                  {txn.products.map((p, i) => (
-                    <div key={i}>
-                      {p.product?.name} → Qty: {p.quantity} × ₹{p.price}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Amount  */}
-                <div className="flex justify-between text-sm font-medium">
-                  <span>Total Amount: ₹{txn.totalAmount}</span>
-                  <span>Paid Amount: ₹{txn.paidAmount}</span>
-                  {txn.remainingAmount < 0 ? (
-                    <span className="text-green-600">
-                      Advance: ₹{Math.abs(txn.remainingAmount)}
-                    </span>
-                  ) : (
-                    <span>Remaining: ₹{txn.remainingAmount}</span>
-                  )}
-                </div>
-
-                {/* Payment Mode  */}
-                <p className="text-xs text-gray-500">
-                  Payment Mode: {txn.paymentMode}
-                </p>
               </div>
-            ))}
-          </div>
+
+              {/* Products  */}
+              <div className="text-sm text-gray-500 mt-2 space-y-0.5">
+                {txn.products.map((p, i) => (
+                  <div key={i}>
+                    {p.product?.name} · Qty {p.quantity} × ₹{p.price}
+                  </div>
+                ))}
+              </div>
+
+              {/* Amount  */}
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm mt-3 pt-3 border-t border-gray-100">
+                <span className="text-gray-500">
+                  Total:{" "}
+                  <span className="font-medium text-gray-900">
+                    ₹{txn.totalAmount}
+                  </span>
+                </span>
+                <span className="text-gray-500">
+                  Paid:{" "}
+                  <span className="font-medium text-gray-900">
+                    ₹{txn.paidAmount}
+                  </span>
+                </span>
+                {txn.remainingAmount < 0 ? (
+                  <span className="text-green-600 font-medium">
+                    Advance: ₹{Math.abs(txn.remainingAmount)}
+                  </span>
+                ) : (
+                  <span className="text-gray-500">
+                    Remaining:{" "}
+                    <span className="font-medium text-gray-900">
+                      ₹{txn.remainingAmount}
+                    </span>
+                  </span>
+                )}
+                <span className="text-gray-400 capitalize ml-auto">
+                  {txn.paymentMode}
+                </span>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>

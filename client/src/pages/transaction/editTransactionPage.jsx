@@ -14,6 +14,10 @@ import {
   useEditTransactionMutation,
 } from "../../redux/transaction/transactionApi";
 
+const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
+const INPUT =
+  "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+
 const EditTransactionPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -184,179 +188,192 @@ const EditTransactionPage = () => {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-2">
+    <div className="max-w-3xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Edit Transaction</h1>
 
         <button
           onClick={() => navigate("/transactions")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <MdOutlineKeyboardBackspace className="h-6 w-6" /> Back
+          <MdOutlineKeyboardBackspace className="h-5 w-5" /> Back
         </button>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-4 md:p-6 rounded-xl shadow-md space-y-4"
+        className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 md:p-8 space-y-5"
       >
-        {/* Type */}
-        <div>
-          <label className="text-sm">Type</label>
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-          >
-            <option value="sale">Sale</option>
-            <option value="purchase">Purchase</option>
-          </select>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Type */}
+          <div>
+            <label className={LABEL}>Type</label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className={INPUT}
+            >
+              <option value="sale">Sale</option>
+              <option value="purchase">Purchase</option>
+            </select>
+          </div>
 
-        {/* Party */}
-        <div>
-          <label className="text-sm">Party</label>
-          <select
-            name="party"
-            value={formData.party}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-          >
-            <option value="">Select Party</option>
-            {filteredParties?.map((p) => (
-              <option key={p._id} value={p._id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Party */}
+          <div>
+            <label className={LABEL}>Party</label>
+            <select
+              name="party"
+              value={formData.party}
+              onChange={handleChange}
+              className={INPUT}
+            >
+              <option value="">Select Party</option>
+              {filteredParties?.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Godown */}
-        <div>
-          <label className="text-sm">
-            Godown {formData.type === "sale" ? "(shipping from)" : "(receiving into)"}
-          </label>
-          <select
-            name="godown"
-            value={formData.godown}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-          >
-            <option value="">Select Godown</option>
-            {godowns?.map((g) => (
-              <option key={g._id} value={g._id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
+          {/* Godown */}
+          <div>
+            <label className={LABEL}>
+              Godown{" "}
+              {formData.type === "sale"
+                ? "(shipping from)"
+                : "(receiving into)"}
+            </label>
+            <select
+              name="godown"
+              value={formData.godown}
+              onChange={handleChange}
+              className={INPUT}
+            >
+              <option value="">Select Godown</option>
+              {godowns?.map((g) => (
+                <option key={g._id} value={g._id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Product  */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium">Products</label>
+        <div>
+          <label className={LABEL}>Products</label>
 
-          {formData.products.map((item, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-1 md:grid-cols-4 gap-2 items-center"
-            >
-              {/* Product  */}
-              <select
-                value={item.product}
-                onChange={(e) =>
-                  handleProductChange(index, "product", e.target.value)
-                }
-                className="border p-2 rounded"
+          <div className="space-y-2">
+            {formData.products.map((item, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_auto] gap-2 items-center bg-gray-50 rounded-lg p-2"
               >
-                <option value="">Select Product</option>
-                {products?.map((product) => (
-                  <option key={product._id} value={product._id}>
-                    {product.name}
-                  </option>
-                ))}
-              </select>
+                {/* Product  */}
+                <select
+                  value={item.product}
+                  onChange={(e) =>
+                    handleProductChange(index, "product", e.target.value)
+                  }
+                  className={`${INPUT} bg-white`}
+                >
+                  <option value="">Select Product</option>
+                  {products?.map((product) => (
+                    <option key={product._id} value={product._id}>
+                      {product.name}
+                    </option>
+                  ))}
+                </select>
 
-              {/* Quantity  */}
-              <input
-                type="number"
-                placeholder="Qty"
-                value={item.quantity}
-                onChange={(e) =>
-                  handleProductChange(index, "quantity", e.target.value)
-                }
-                className="border p-2 rounded"
-              ></input>
+                {/* Quantity  */}
+                <input
+                  type="number"
+                  placeholder="Qty"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    handleProductChange(index, "quantity", e.target.value)
+                  }
+                  className={`${INPUT} bg-white`}
+                />
 
-              {/* Price  */}
-              <input
-                type="number"
-                placeholder="Price"
-                value={item.price}
-                onChange={(e) =>
-                  handleProductChange(index, "price", e.target.value)
-                }
-                className="border p-2 rounded"
-              ></input>
+                {/* Price  */}
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={item.price}
+                  onChange={(e) =>
+                    handleProductChange(index, "price", e.target.value)
+                  }
+                  className={`${INPUT} bg-white`}
+                />
 
-              {/* Remove Button  */}
-              <button
-                type="button"
-                onClick={() => removeRow(index)}
-                className="bg-gray-50 flex items-center justify-center w-12 rounded hover:cursor-pointer"
-              >
-                <MdOutlineDeleteForever className="text-red-600 h-10 w-10" />
-              </button>
-            </div>
-          ))}
+                {/* Remove Button  */}
+                <button
+                  type="button"
+                  onClick={() => removeRow(index)}
+                  className="p-2.5 rounded-lg hover:bg-gray-200 transition justify-self-end md:justify-self-auto"
+                  aria-label="Remove product row"
+                >
+                  <MdOutlineDeleteForever className="text-red-600 h-5 w-5" />
+                </button>
+              </div>
+            ))}
+          </div>
 
           {/* Add Row */}
           <button
             type="button"
             onClick={addRow}
-            className="flex items-center gap-2 text-md font-semibold bg-gray-100 px-3 py-2 rounded"
+            className="flex items-center gap-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition mt-2"
           >
-            <FaPlus className="h-5 w-5 text-green-600" /> Add Product
+            <FaPlus className="h-4 w-4 text-green-600" /> Add Product
           </button>
         </div>
 
         {/* Total  */}
-        <div className="font-semibold text-right">Total: ₹{totalAmount}</div>
-
-        {/* Paid Amount  */}
-        <div>
-          <label className="text-sm">Paid Amount</label>
-          <input
-            type="number"
-            placeholder="Paid Amount"
-            name="paidAmount"
-            value={formData.paidAmount}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-          ></input>
+        <div className="flex justify-end text-sm">
+          <span className="text-gray-500 mr-2">Total</span>
+          <span className="font-semibold text-gray-900">₹{totalAmount}</span>
         </div>
 
-        {/* Payment Mode  */}
-        <div>
-          <label className="text-sm">Payment Mode</label>
-          <select
-            name="paymentMode"
-            value={formData.paymentMode}
-            onChange={handleChange}
-            className="border p-2 rounded w-full"
-          >
-            <option value="cash">Cash</option>
-            <option value="upi">Upi</option>
-            <option value="cheque">Cheque</option>
-            <option value="bank">Bank Transfer</option>
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Paid Amount  */}
+          <div>
+            <label className={LABEL}>Paid Amount</label>
+            <input
+              type="number"
+              placeholder="Paid Amount"
+              name="paidAmount"
+              value={formData.paidAmount}
+              onChange={handleChange}
+              className={INPUT}
+            />
+          </div>
+
+          {/* Payment Mode  */}
+          <div>
+            <label className={LABEL}>Payment Mode</label>
+            <select
+              name="paymentMode"
+              value={formData.paymentMode}
+              onChange={handleChange}
+              className={INPUT}
+            >
+              <option value="cash">Cash</option>
+              <option value="upi">Upi</option>
+              <option value="cheque">Cheque</option>
+              <option value="bank">Bank Transfer</option>
+            </select>
+          </div>
         </div>
 
         {/* Submit Button   */}
         <button
           type="submit"
           disabled={isUpdating}
-          className="w-full bg-blue-600 text-md font-semibold hover:bg-blue-700 text-white py-2 md:py-3 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white py-2.5 md:py-3 rounded-lg transition disabled:opacity-60"
         >
           {isUpdating ? "Updating..." : "Update Transaction"}
         </button>

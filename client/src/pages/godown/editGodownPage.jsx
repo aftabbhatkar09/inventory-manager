@@ -9,6 +9,10 @@ import {
   useEditGodownByIdMutation,
 } from "../../redux/godown/godownApi";
 
+const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
+const INPUT =
+  "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+
 const EditGodownPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -69,46 +73,46 @@ const EditGodownPage = () => {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-2">
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Edit Godown</h1>
 
         <button
           onClick={() => navigate("/godowns")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <MdOutlineKeyboardBackspace className="h-6 w-6" /> Back
+          <MdOutlineKeyboardBackspace className="h-5 w-5" /> Back
         </button>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow-md space-y-4"
+        className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 md:p-8 space-y-5"
       >
         <div>
-          <label className="text-sm text-gray-600">Godown Name</label>
+          <label className={LABEL}>Godown Name</label>
           <input
             name="name"
             value={formData.name || ""}
             onChange={handleChange}
-            className="border p-2 w-full rounded"
+            className={INPUT}
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-600">Address</label>
+          <label className={LABEL}>Address</label>
           <input
             name="address"
             value={formData.address || ""}
             onChange={handleChange}
-            className="border p-2 w-full rounded"
+            className={INPUT}
           />
         </div>
 
         <button
           type="submit"
           disabled={isUpdating}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-md font-semibold text-white py-2 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white py-2.5 rounded-lg transition disabled:opacity-60"
         >
           {isUpdating ? "Updating..." : "Update Godown"}
         </button>

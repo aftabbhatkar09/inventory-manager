@@ -13,6 +13,10 @@ import {
   useEditPaymentByIdMutation,
 } from "../../redux/payment/paymentApi";
 
+const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
+const INPUT =
+  "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+
 const EditPaymentPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -97,30 +101,30 @@ const EditPaymentPage = () => {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-2">
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Edit Payment</h1>
 
         <button
           onClick={() => navigate("/payments")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <MdOutlineKeyboardBackspace className="h-6 w-6" /> Back
+          <MdOutlineKeyboardBackspace className="h-5 w-5" /> Back
         </button>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow-md space-y-4"
+        className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 md:p-8 space-y-5"
       >
         {/* Type */}
         <div>
-          <label className="text-sm text-gray-600">Type</label>
+          <label className={LABEL}>Type</label>
           <select
             name="type"
             value={formData.type}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           >
             <option value="received">Received (from customer)</option>
             <option value="paid">Paid (to supplier)</option>
@@ -129,12 +133,12 @@ const EditPaymentPage = () => {
 
         {/* Party */}
         <div>
-          <label className="text-sm text-gray-600">Party</label>
+          <label className={LABEL}>Party</label>
           <select
             name="party"
             value={formData.party}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           >
             <option value="">Select Party</option>
             {filteredParties?.map((p) => (
@@ -144,9 +148,13 @@ const EditPaymentPage = () => {
             ))}
           </select>
           {ledger && formData.party && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1.5">
               Current balance:{" "}
-              <span className={ledger.balance >= 0 ? "text-green-600" : "text-red-600"}>
+              <span
+                className={
+                  ledger.balance >= 0 ? "text-green-600" : "text-red-600"
+                }
+              >
                 ₹{ledger.balance}
               </span>{" "}
               {ledger.balance >= 0 ? "(they owe you)" : "(you owe them)"}
@@ -156,24 +164,24 @@ const EditPaymentPage = () => {
 
         {/* Amount */}
         <div>
-          <label className="text-sm text-gray-600">Amount</label>
+          <label className={LABEL}>Amount</label>
           <input
             type="number"
             name="amount"
             value={formData.amount}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         {/* Payment Mode */}
         <div>
-          <label className="text-sm text-gray-600">Payment Mode</label>
+          <label className={LABEL}>Payment Mode</label>
           <select
             name="paymentMode"
             value={formData.paymentMode}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           >
             <option value="cash">Cash</option>
             <option value="upi">UPI</option>
@@ -185,19 +193,19 @@ const EditPaymentPage = () => {
 
         {/* Note */}
         <div>
-          <label className="text-sm text-gray-600">Note (optional)</label>
+          <label className={LABEL}>Note (optional)</label>
           <input
             name="note"
             value={formData.note}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         <button
           type="submit"
           disabled={isUpdating}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-md font-semibold text-white py-2 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white py-2.5 rounded-lg transition disabled:opacity-60"
         >
           {isUpdating ? "Updating..." : "Update Payment"}
         </button>

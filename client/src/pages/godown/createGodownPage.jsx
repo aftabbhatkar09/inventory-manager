@@ -6,6 +6,10 @@ import { MdOutlineKeyboardBackspace } from "react-icons/md";
 
 import { useCreateGodownMutation } from "../../redux/godown/godownApi";
 
+const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
+const INPUT =
+  "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+
 const CreateGodownPage = () => {
   const navigate = useNavigate();
 
@@ -52,48 +56,48 @@ const CreateGodownPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between mb-2">
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Create Godown</h1>
         <button
           onClick={() => navigate("/godowns")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <MdOutlineKeyboardBackspace className="h-6 w-6" /> Back
+          <MdOutlineKeyboardBackspace className="h-5 w-5" /> Back
         </button>
       </div>
 
       <form
         onSubmit={(e) => handleSubmit(e, false)}
-        className="bg-white p-6 rounded-xl shadow-md space-y-4"
+        className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 md:p-8 space-y-5"
       >
         <div>
-          <label className="text-sm text-gray-600">Godown Name</label>
+          <label className={LABEL}>Godown Name</label>
           <input
             name="name"
             value={formData.name}
             onChange={handleChange}
             placeholder="Enter godown name"
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-600">Address</label>
+          <label className={LABEL}>Address</label>
           <input
             name="address"
             value={formData.address}
             onChange={handleChange}
             placeholder="Enter address"
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex flex-col md:flex-row gap-3 pt-2">
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-md font-semibold text-white py-2 rounded"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white py-2.5 rounded-lg transition disabled:opacity-60"
           >
             {isLoading ? "Saving..." : "Save Godown"}
           </button>
@@ -102,7 +106,7 @@ const CreateGodownPage = () => {
             type="button"
             disabled={isLoading}
             onClick={(e) => handleSubmit(e, true)}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-md font-semibold py-2 rounded"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
           >
             Save & Add Another
           </button>

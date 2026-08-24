@@ -15,6 +15,11 @@ import {
   useDeletePartyByIdMutation,
 } from "../../redux/party/partyApi";
 
+const TYPE_BADGE = {
+  customer: "bg-blue-50 text-blue-700",
+  supplier: "bg-orange-50 text-orange-700",
+};
+
 const PartyPage = () => {
   const navigate = useNavigate();
 
@@ -49,20 +54,18 @@ const PartyPage = () => {
         <HashLoader color="#4b6fee" />
       </div>
     );
-  if (error) return <p>Error Fetching Parties</p>;
+  if (error) return <p className="text-red-600">Error fetching parties.</p>;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Parties</h1>
 
         <button
           onClick={() => navigate("/parties/createParty")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <FaPlus className="h-5 w-5" /> Add Party
+          <FaPlus className="h-4 w-4" /> Add Party
         </button>
       </div>
 
@@ -73,48 +76,60 @@ const PartyPage = () => {
       />
 
       {/* Party List  */}
-      <div className="bg-white rounded-xl shadow-md p-4 space-y-3">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 divide-y divide-gray-100 overflow-hidden">
         {filteredParties.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">
+          <p className="text-sm text-gray-500 py-10 text-center">
             {search ? "No parties match your search." : "No parties yet."}
           </p>
         ) : (
-        filteredParties.map((party) => (
-          <div
-            key={party._id}
-            className="flex justify-between items-center gap-2 border p-3 rounded-lg hover:shadow transition"
-          >
-            <div>
-              <p className="font-medium">{party.name}</p>
-              <p className="text-sm text-gray-500">{party.type}</p>
-              <p className="text-sm text-gray-500">
-                {party.phone || "No phone number"}
-              </p>
-            </div>
+          filteredParties.map((party) => (
+            <div
+              key={party._id}
+              className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 p-4 hover:bg-gray-50 transition-colors"
+            >
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-medium text-gray-900">{party.name}</p>
+                  {party.type.map((t) => (
+                    <span
+                      key={t}
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${TYPE_BADGE[t] || "bg-gray-100 text-gray-600"}`}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  {party.phone || "No phone number"}
+                </p>
+              </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate(`/parties/partyLedger/${party._id}`)}
-                className="text-blue-600 hover:text-blue-700 text-md font-semibold hover:cursor-pointer"
-              >
-                View Ledger
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => navigate(`/parties/partyLedger/${party._id}`)}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-semibold px-3 py-2 rounded-lg hover:bg-blue-50 transition"
+                >
+                  View Ledger
+                </button>
 
-              <button
-                onClick={() => navigate(`/parties/editParty/${party._id}`)}
-              >
-                <TbEdit className="text-green-600 h-6 w-6 hover:text-green-700 hover:cursor-pointer" />
-              </button>
+                <button
+                  onClick={() => navigate(`/parties/editParty/${party._id}`)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition"
+                  aria-label="Edit party"
+                >
+                  <TbEdit className="text-green-600 h-5 w-5" />
+                </button>
 
-              <button>
-                <MdOutlineDeleteForever
+                <button
                   onClick={() => handleDelete(party._id)}
-                  className="text-red-600 h-6 w-6 hover:text-red-700 hover:cursor-pointer"
-                />
-              </button>
+                  className="p-2 rounded-lg hover:bg-gray-100 transition"
+                  aria-label="Delete party"
+                >
+                  <MdOutlineDeleteForever className="text-red-600 h-5 w-5" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))
+          ))
         )}
       </div>
     </div>

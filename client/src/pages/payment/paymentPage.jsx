@@ -61,10 +61,10 @@ const PaymentPage = () => {
         <h1 className="text-xl font-bold">Payments</h1>
 
         <button
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
           onClick={() => navigate("/payments/createPayment")}
         >
-          <FaPlus className="h-5 w-5" /> Record Payment
+          <FaPlus className="h-4 w-4" /> Record Payment
         </button>
       </div>
 
@@ -74,49 +74,59 @@ const PaymentPage = () => {
         placeholder="Search by party, mode, or note"
       />
 
-      <div className="bg-white rounded-xl shadow p-4 space-y-3">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 divide-y divide-gray-100 overflow-hidden">
         {filteredData.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">
-            {search ? "No payments match your search." : "No payments recorded yet."}
+          <p className="text-sm text-gray-500 py-10 text-center">
+            {search
+              ? "No payments match your search."
+              : "No payments recorded yet."}
           </p>
         ) : (
           filteredData.map((payment) => (
             <div
               key={payment._id}
-              className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 border p-3 rounded-lg hover:shadow transition"
+              className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 p-4 hover:bg-gray-50 transition-colors"
             >
               <div>
-                <p className="font-medium">
-                  {payment.party?.name || "N/A"}{" "}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-medium text-gray-900">
+                    {payment.party?.name || "N/A"}
+                  </p>
                   <span
-                    className={
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                       payment.type === "received"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }
+                        ? "bg-green-50 text-green-700"
+                        : "bg-red-50 text-red-700"
+                    }`}
                   >
                     {payment.type === "received" ? "Received" : "Paid"}: ₹
                     {payment.amount}
                   </span>
-                </p>
-                <p className="text-sm text-gray-500">
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
                   {payment.paymentMode} ·{" "}
                   {new Date(payment.createdAt).toLocaleDateString()}
                   {payment.note ? ` · ${payment.note}` : ""}
                 </p>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex items-center gap-1">
                 <button
                   onClick={() =>
                     navigate(`/payments/editPayment/${payment._id}`)
                   }
+                  className="p-2 rounded-lg hover:bg-gray-100 transition"
+                  aria-label="Edit payment"
                 >
-                  <TbEdit className="text-green-600 h-6 w-6 hover:text-green-700" />
+                  <TbEdit className="text-green-600 h-5 w-5" />
                 </button>
 
-                <button onClick={() => handleDelete(payment._id)}>
-                  <MdOutlineDeleteForever className="text-red-600 h-6 w-6 hover:text-red-700" />
+                <button
+                  onClick={() => handleDelete(payment._id)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition"
+                  aria-label="Delete payment"
+                >
+                  <MdOutlineDeleteForever className="text-red-600 h-5 w-5" />
                 </button>
               </div>
             </div>

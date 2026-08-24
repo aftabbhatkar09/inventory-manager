@@ -6,6 +6,10 @@ import { MdOutlineKeyboardBackspace } from "react-icons/md";
 
 import { useCreatePartyMutation } from "../../redux/party/partyApi";
 
+const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
+const INPUT =
+  "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+
 const CreatePartyPage = () => {
   const navigate = useNavigate();
 
@@ -80,70 +84,70 @@ const CreatePartyPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="text-xl font-bold mb-4">Create Party</h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">Create Party</h1>
 
         <button
           onClick={() => navigate("/parties")}
-          className=" flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <MdOutlineKeyboardBackspace className="h-6 w-6" />
+          <MdOutlineKeyboardBackspace className="h-5 w-5" />
           Back
         </button>
       </div>
 
       <form
         onSubmit={(e) => handleSubmit(e, false)}
-        className="bg-white p-6 rounded-xl shadow-md space-4"
+        className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 md:p-8 space-y-5"
       >
         {/* Name  */}
         <div>
-          <label className="text-sm text-gray-600">Party name</label>
+          <label className={LABEL}>Party Name</label>
           <input
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         {/* Phone  */}
         <div>
-          <label className="text-sm text-gray-600">Phone</label>
+          <label className={LABEL}>Phone</label>
           <input
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         {/* Email  */}
         <div>
-          <label className="text-sm text-gray-600">Party email</label>
+          <label className={LABEL}>Email</label>
           <input
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         {/* Address */}
         <div>
-          <label className="text-sm text-gray-600">Address</label>
+          <label className={LABEL}>Address</label>
           <input
             name="address"
             value={formData.address}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         {/* Opening Balance  */}
         <div>
-          <label className="text-sm text-gray-600">
+          <label className={LABEL}>
             Opening Balance (positive = they owe you, negative = you owe
             them)
           </label>
@@ -152,31 +156,31 @@ const CreatePartyPage = () => {
             name="openingBalance"
             value={formData.openingBalance}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           />
         </div>
 
         {/* Type  */}
-        <div className="flex items-center gap-6">
-          <label className="text-sm text-gray-600">Type :</label>
+        <div>
+          <label className={LABEL}>Type</label>
 
-          <div className="flex gap-4 mt-2">
-            <label>
+          <div className="flex gap-3">
+            <label className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 text-sm cursor-pointer has-checked:border-blue-500 has-checked:bg-blue-50 has-checked:text-blue-700 transition">
               <input
                 type="checkbox"
                 checked={formData.type.includes("customer")}
                 onChange={() => handleTypeChange("customer")}
-                className="mr-1 mb-2"
+                className="accent-blue-600"
               />
               Customer
             </label>
 
-            <label>
+            <label className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 text-sm cursor-pointer has-checked:border-blue-500 has-checked:bg-blue-50 has-checked:text-blue-700 transition">
               <input
                 type="checkbox"
                 checked={formData.type.includes("supplier")}
                 onChange={() => handleTypeChange("supplier")}
-                className="mr-1 mb-2"
+                className="accent-blue-600"
               />
               Supplier
             </label>
@@ -184,18 +188,19 @@ const CreatePartyPage = () => {
         </div>
 
         {/* Buttons  */}
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex flex-col md:flex-row gap-3 pt-2">
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 bg-blue-600 text-md font-semibold hover:bg-blue-700 text-white py-2 rounded"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white py-2.5 rounded-lg transition disabled:opacity-60"
           >
             {isLoading ? "Saving..." : "Save Party"}
           </button>
           <button
+            type="button"
             onClick={(e) => handleSubmit(e, true)}
             disabled={isLoading}
-            className="flex-1 bg-gray-200 text-md font-semibold hover:bg-gray-300 text-gray-800 py-2 rounded"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
           >
             Save & Add Another
           </button>

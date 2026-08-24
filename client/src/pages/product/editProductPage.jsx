@@ -9,6 +9,10 @@ import {
   useEditProductMutation,
 } from "../../redux/product/productApi";
 
+const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
+const INPUT =
+  "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+
 const EditProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -81,63 +85,63 @@ const EditProductPage = () => {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="text-xl font-bold">Edit Products</h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">Edit Product</h1>
 
         <button
           onClick={() => navigate("/products")}
-          className="flex items-center gap-2 text-md font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition"
         >
-          <MdOutlineKeyboardBackspace className="h-6 w-6" /> Back
+          <MdOutlineKeyboardBackspace className="h-5 w-5" /> Back
         </button>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow-md space-y-4"
+        className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 md:p-8 space-y-5"
       >
         {/* Name */}
         <div>
-          <label className="text-sm text-gray-600">Product Name</label>
+          <label className={LABEL}>Product Name</label>
           <input
             name="name"
             value={formData.name || ""}
             onChange={handleChange}
-            className="border p-2 w-full rounded"
+            className={INPUT}
           />
         </div>
 
         {/* SKU */}
         <div>
-          <label className="text-sm text-gray-600">SKU</label>
+          <label className={LABEL}>SKU</label>
           <input
             name="sku"
             value={formData.sku || ""}
             onChange={handleChange}
-            className="border p-2 w-full rounded"
+            className={INPUT}
           />
         </div>
 
         {/* Category */}
         <div>
-          <label className="text-sm text-gray-600">Category</label>
+          <label className={LABEL}>Category</label>
           <input
             name="category"
             value={formData.category || ""}
             onChange={handleChange}
-            className="border p-2 w-full rounded"
+            className={INPUT}
           />
         </div>
 
         {/* Unit */}
         <div>
-          <label className="text-sm text-gray-600">Unit</label>
+          <label className={LABEL}>Unit</label>
           <select
             name="unit"
             value={formData.unit}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className={INPUT}
           >
             <option value="pcs">pcs</option>
             <option value="kg">kg</option>
@@ -147,7 +151,7 @@ const EditProductPage = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-md font-semibold text-white py-2 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white py-2.5 rounded-lg transition"
         >
           Update Product
         </button>
