@@ -1,5 +1,6 @@
-import Product from "../models/Product.model.js";
+import Product from "../models/product.model.js";
 import Transaction from "../models/transaction.model.js";
+import { getProductStockById } from "../utils/stock.util.js";
 
 //Create Product
 export const createProduct = async (req, res) => {

@@ -8,9 +8,9 @@ export const getPartyLedger = async (partyId) => {
 
   transactions.forEach((txn) => {
     if (txn.type === "sale") {
-      totalCredit = +txn.totalAmount - txn.paidAmount;
+      totalCredit += txn.remainingAmount;
     } else if (txn.type === "purchase") {
-      totalDebit += txn.totalAmount - txn.paidAmount;
+      totalDebit += txn.remainingAmount;
     }
   });
 

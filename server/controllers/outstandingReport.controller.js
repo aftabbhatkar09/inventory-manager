@@ -10,13 +10,13 @@ export const getOutstandingReport = async (req, res) => {
 
           totalCredit: {
             $sum: {
-              $cond: [{ $eq: ["$type", "sale"] }, "$totalAmount", 0],
+              $cond: [{ $eq: ["$type", "sale"] }, "$remainingAmount", 0],
             },
           },
 
           totalDebit: {
             $sum: {
-              $cond: [{ $eq: ["$type", "purchase"] }, "$totalAmount", 0],
+              $cond: [{ $eq: ["$type", "purchase"] }, "$remainingAmount", 0],
             },
           },
         },
