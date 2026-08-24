@@ -1,5 +1,10 @@
 import Product from "../models/product.model.js";
-import { getProductStockById, getStockMap } from "../utils/stock.util.js";
+import Godown from "../models/godown.model.js";
+import {
+  getProductStockById,
+  getStockMap,
+  getGodownStockMap,
+} from "../utils/stock.util.js";
 
 //Create Product
 export const createProduct = async (req, res) => {
@@ -34,12 +39,35 @@ export const getAllProducts = async (req, res) => {
       createdAt: -1,
     });
 
-    const stockMap = await getStockMap();
+    const [stockMap, godownStockMap, godowns] = await Promise.all([
+      getStockMap(),
+      getGodownStockMap(),
+      Godown.find({ isDeleted: false }),
+    ]);
 
-    const result = products.map((product) => ({
-      ...product.toObject(),
-      stock: stockMap[product._id.toString()] || 0,
-    }));
+    const godownNameById = {};
+    godowns.forEach((g) => {
+      godownNameById[g._id.toString()] = g.name;
+    });
+
+    const result = products.map((product) => {
+      const productId = product._id.toString();
+      const perGodown = godownStockMap[productId] || {};
+
+      const godownStock = Object.entries(perGodown)
+        .filter(([, quantity]) => quantity !== 0)
+        .map(([godownId, quantity]) => ({
+          godownId,
+          godownName: godownNameById[godownId] || "Unknown Godown",
+          quantity,
+        }));
+
+      return {
+        ...product.toObject(),
+        stock: stockMap[productId] || 0,
+        godownStock,
+      };
+    });
 
     res.json(result);
   } catch (error) {

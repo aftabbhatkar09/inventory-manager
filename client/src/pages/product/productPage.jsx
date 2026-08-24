@@ -68,6 +68,14 @@ const ProductPage = () => {
                 </p>
 
                 <p className="text-sm text-gray-400">Stock: {product.stock}</p>
+
+                {product.godownStock?.length > 0 && (
+                  <p className="text-xs text-gray-400">
+                    {product.godownStock
+                      .map((g) => `${g.godownName}: ${g.quantity}`)
+                      .join(" · ")}
+                  </p>
+                )}
               </div>
 
               {/* Right  */}
