@@ -11,13 +11,15 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     category: {
       type: String,
       default: "",
     },
     unit: {
-      type: String, // e.g., "pcs", "kg", "liters"
+      type: String,
+      enum: ["pcs", "kg", "ltr"],
       default: "pcs",
     },
     isDeleted: {

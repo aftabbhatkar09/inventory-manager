@@ -4,6 +4,20 @@ import {
   getPartyLedger,
   getPartyLedgerWithEntries,
 } from "../utils/ledger.util.js";
+import {
+  assertFiniteNumber,
+  handleControllerError,
+} from "../utils/validate.util.js";
+
+const validatePartyTypes = (type) => {
+  const invalid = type.filter((t) => !["customer", "supplier"].includes(t));
+
+  if (invalid.length > 0) {
+    return `Invalid type(s): ${invalid.join(", ")}`;
+  }
+
+  return null;
+};
 
 // Create Party
 export const createParty = async (req, res) => {
@@ -14,6 +28,15 @@ export const createParty = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Name and atleast one type is required" });
+    }
+
+    const typeError = validatePartyTypes(type);
+    if (typeError) {
+      return res.status(400).json({ message: typeError });
+    }
+
+    if (openingBalance !== undefined) {
+      assertFiniteNumber(openingBalance, "Opening balance");
     }
 
     const party = new Party({
@@ -29,9 +52,7 @@ export const createParty = async (req, res) => {
 
     res.status(201).json(savedParty);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating party", error: error.message });
+    handleControllerError(res, error, "Error creating party");
   }
 };
 
@@ -78,6 +99,15 @@ export const updateParty = async (req, res) => {
       return res.status(400).json({ message: "Atleast one type is required" });
     }
 
+    const typeError = validatePartyTypes(type);
+    if (typeError) {
+      return res.status(400).json({ message: typeError });
+    }
+
+    if (openingBalance !== undefined) {
+      assertFiniteNumber(openingBalance, "Opening balance");
+    }
+
     const updatedParty = await Party.findByIdAndUpdate(
       id,
       { name, phone, email, address, type, openingBalance },
@@ -90,9 +120,7 @@ export const updateParty = async (req, res) => {
 
     res.json(updatedParty);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating party", error: error.message });
+    handleControllerError(res, error, "Error updating party");
   }
 };
 

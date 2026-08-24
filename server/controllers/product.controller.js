@@ -5,14 +5,21 @@ import {
   getStockMap,
   getGodownStockMap,
 } from "../utils/stock.util.js";
+import { assertOneOf, handleControllerError } from "../utils/validate.util.js";
+
+const UNITS = ["pcs", "kg", "ltr"];
 
 //Create Product
 export const createProduct = async (req, res) => {
   try {
     const { name, sku, category, unit } = req.body;
 
-    if (!name || !sku) {
+    if (!name?.trim() || !sku?.trim()) {
       return res.status(400).json({ message: "Name and SKU are required" });
+    }
+
+    if (unit !== undefined) {
+      assertOneOf(unit, UNITS, "Unit");
     }
 
     const product = new Product({
@@ -26,9 +33,7 @@ export const createProduct = async (req, res) => {
 
     res.status(201).json(savedProduct);
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Error creating product", error: error.message });
+    handleControllerError(res, error, "Error creating product");
   }
 };
 
@@ -101,6 +106,14 @@ export const editProduct = async (req, res) => {
 
     const { id } = req.params;
 
+    if (!name?.trim() || !sku?.trim()) {
+      return res.status(400).json({ message: "Name and SKU are required" });
+    }
+
+    if (unit !== undefined) {
+      assertOneOf(unit, UNITS, "Unit");
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { name, sku, category, unit },
@@ -116,9 +129,7 @@ export const editProduct = async (req, res) => {
 
     res.json(updatedProduct);
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Error updating product", error: error.message });
+    handleControllerError(res, error, "Error updating product");
   }
 };
 

@@ -31,10 +31,12 @@ const transactionSchema = new mongoose.Schema(
         quantity: {
           type: Number,
           required: true,
+          min: [0.01, "Quantity must be greater than 0"],
         },
         price: {
           type: Number,
           required: true,
+          min: [0, "Price cannot be negative"],
         },
       },
     ],
@@ -47,6 +49,7 @@ const transactionSchema = new mongoose.Schema(
     paidAmount: {
       type: Number,
       default: 0,
+      min: [0, "Paid amount cannot be negative"],
     },
 
     remainingAmount: {

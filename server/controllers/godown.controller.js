@@ -1,13 +1,14 @@
 import Godown from "../models/godown.model.js";
 import Product from "../models/product.model.js";
 import { getGodownStockMap } from "../utils/stock.util.js";
+import { handleControllerError } from "../utils/validate.util.js";
 
 // Create Godown
 export const createGodown = async (req, res) => {
   try {
     const { name, address } = req.body;
 
-    if (!name) {
+    if (!name?.trim()) {
       return res.status(400).json({ message: "Name is required" });
     }
 
@@ -16,9 +17,7 @@ export const createGodown = async (req, res) => {
 
     res.status(201).json(saved);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating godown", error: error.message });
+    handleControllerError(res, error, "Error creating godown");
   }
 };
 
@@ -60,6 +59,10 @@ export const updateGodown = async (req, res) => {
     const { name, address } = req.body;
     const { id } = req.params;
 
+    if (!name?.trim()) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
     const updated = await Godown.findByIdAndUpdate(
       id,
       { name, address },
@@ -72,9 +75,7 @@ export const updateGodown = async (req, res) => {
 
     res.json(updated);
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Error updating godown", error: error.message });
+    handleControllerError(res, error, "Error updating godown");
   }
 };
 

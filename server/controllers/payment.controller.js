@@ -1,24 +1,33 @@
 import Payment from "../models/payment.model.js";
+import Party from "../models/party.model.js";
+import {
+  assertExists,
+  assertOneOf,
+  assertPositiveNumber,
+  handleControllerError,
+} from "../utils/validate.util.js";
 
 // Create payment
 export const createPayment = async (req, res) => {
   try {
     const { party, type, amount, paymentMode, note } = req.body;
 
-    if (!party || !type || !amount || amount <= 0) {
+    if (!party || !type || !amount) {
       return res
         .status(400)
         .json({ message: "Party, type and a positive amount are required" });
     }
+
+    await assertExists(Party, party, "Party");
+    assertOneOf(type, ["received", "paid"], "Type");
+    assertPositiveNumber(amount, "Amount");
 
     const payment = new Payment({ party, type, amount, paymentMode, note });
     const saved = await payment.save();
 
     res.status(201).json(saved);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating payment", error: error.message });
+    handleControllerError(res, error, "Error creating payment");
   }
 };
 
@@ -60,11 +69,15 @@ export const updatePayment = async (req, res) => {
     const { id } = req.params;
     const { party, type, amount, paymentMode, note } = req.body;
 
-    if (!party || !type || !amount || amount <= 0) {
+    if (!party || !type || !amount) {
       return res
         .status(400)
         .json({ message: "Party, type and a positive amount are required" });
     }
+
+    await assertExists(Party, party, "Party");
+    assertOneOf(type, ["received", "paid"], "Type");
+    assertPositiveNumber(amount, "Amount");
 
     const updated = await Payment.findByIdAndUpdate(
       id,
@@ -78,9 +91,7 @@ export const updatePayment = async (req, res) => {
 
     res.json(updated);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating payment", error: error.message });
+    handleControllerError(res, error, "Error updating payment");
   }
 };
 

@@ -1,12 +1,42 @@
 import Transaction from "../models/transaction.model.js";
 import Product from "../models/product.model.js";
+import Party from "../models/party.model.js";
+import Godown from "../models/godown.model.js";
 import { getProductStockInGodown } from "../utils/stock.util.js";
+import {
+  assertExists,
+  assertOneOf,
+  assertPositiveNumber,
+  assertNonNegativeNumber,
+  handleControllerError,
+} from "../utils/validate.util.js";
 
 const buildStockError = async (item, availableStock) => {
   const product = await Product.findById(item.product);
   const name = product?.name || item.product;
 
   return `Not enough stock of "${name}" (available: ${availableStock}, requested: ${item.quantity})`;
+};
+
+// Confirms every foreign key and number in a transaction payload is real
+// and in range before it ever reaches the database -- a bad party/godown/
+// product id fails with a clear message instead of a raw CastError, and a
+// negative or zero quantity/price can't slip through even if someone
+// bypasses the UI and calls the API directly.
+const validateTransactionPayload = async ({ type, party, godown, products, paidAmount }) => {
+  assertOneOf(type, ["sale", "purchase"], "Type");
+  await assertExists(Party, party, "Party");
+  await assertExists(Godown, godown, "Godown");
+
+  for (const item of products) {
+    await assertExists(Product, item.product, "Product");
+    assertPositiveNumber(item.quantity, "Quantity");
+    assertNonNegativeNumber(item.price, "Price");
+  }
+
+  if (paidAmount !== undefined) {
+    assertNonNegativeNumber(paidAmount, "Paid amount");
+  }
 };
 
 // Create transaction
@@ -20,6 +50,8 @@ export const createTransaction = async (req, res) => {
         .status(400)
         .json({ message: "Type, party, godown and products are required" });
     }
+
+    await validateTransactionPayload({ type, party, godown, products, paidAmount });
 
     // Stock validation before sale -- checked against the specific godown
     // this sale is shipping from, not the company-wide total.
@@ -61,9 +93,7 @@ export const createTransaction = async (req, res) => {
 
     res.status(201).json(saved);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating transaction", error: error.message });
+    handleControllerError(res, error, "Error creating transaction");
   }
 };
 
@@ -117,6 +147,8 @@ export const updateTransaction = async (req, res) => {
         .json({ message: "Type, party, godown and products are required" });
     }
 
+    await validateTransactionPayload({ type, party, godown, products, paidAmount });
+
     // Stock validation before sale, excluding this transaction's own
     // quantities, checked against the godown it's shipping from.
     if (type === "sale") {
@@ -164,9 +196,7 @@ export const updateTransaction = async (req, res) => {
 
     res.json(updated);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating transaction", error: error.message });
+    handleControllerError(res, error, "Error updating transaction");
   }
 };
 

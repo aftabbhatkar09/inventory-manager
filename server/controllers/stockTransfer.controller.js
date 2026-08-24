@@ -1,12 +1,19 @@
 import StockTransfer from "../models/stockTransfer.model.js";
+import Product from "../models/product.model.js";
+import Godown from "../models/godown.model.js";
 import { getProductStockInGodown } from "../utils/stock.util.js";
+import {
+  assertExists,
+  assertPositiveNumber,
+  handleControllerError,
+} from "../utils/validate.util.js";
 
 // Create stock transfer
 export const createStockTransfer = async (req, res) => {
   try {
     const { product, fromGodown, toGodown, quantity, note } = req.body;
 
-    if (!product || !fromGodown || !toGodown || !quantity || quantity <= 0) {
+    if (!product || !fromGodown || !toGodown || !quantity) {
       return res.status(400).json({
         message: "Product, source/destination godown, and a positive quantity are required",
       });
@@ -17,6 +24,11 @@ export const createStockTransfer = async (req, res) => {
         .status(400)
         .json({ message: "Source and destination godown must be different" });
     }
+
+    await assertExists(Product, product, "Product");
+    await assertExists(Godown, fromGodown, "Source godown");
+    await assertExists(Godown, toGodown, "Destination godown");
+    assertPositiveNumber(quantity, "Quantity");
 
     const availableStock = await getProductStockInGodown(product, fromGodown);
 
@@ -38,9 +50,7 @@ export const createStockTransfer = async (req, res) => {
 
     res.status(201).json(saved);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating stock transfer", error: error.message });
+    handleControllerError(res, error, "Error creating stock transfer");
   }
 };
 
