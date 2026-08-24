@@ -19,9 +19,32 @@ export const COOKIE_OPTIONS = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
-// Provisions a single admin account from env vars the first time the app
-// runs against a fresh database. Only ever creates a user if none exist --
-// won't overwrite credentials someone has already logged in with.
+// Creates one user from env vars if that username doesn't exist yet.
+// Idempotent per-username, so safe to call on every boot.
+const ensureUserFromEnv = async (usernameVar, passwordVar, role) => {
+  const username = process.env[usernameVar];
+  const password = process.env[passwordVar];
+
+  if (!username || !password) return;
+
+  const normalized = username.trim().toLowerCase();
+  const existing = await User.findOne({ username: normalized });
+
+  if (existing) return;
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await User.create({ username, passwordHash, role });
+
+  console.log(`Created ${role} user "${username}" from .env`);
+};
+
+// Provisions the initial account(s) from env vars. The super admin only
+// gets auto-created the first time the app runs against a fresh database
+// (so it never overwrites credentials someone has already logged in with);
+// the second, regular admin account is optional and can be added any time
+// by setting STAFF_ADMIN_USERNAME/STAFF_ADMIN_PASSWORD -- it's created the
+// next time the server boots, and only if that username doesn't exist yet.
 export const ensureAdminUser = async () => {
   // Backfill: any account created before roles existed was, by definition,
   // the sole admin -- promote it rather than leaving `role` unset, which
@@ -33,20 +56,17 @@ export const ensureAdminUser = async () => {
 
   const existingCount = await User.countDocuments();
 
-  if (existingCount > 0) return;
+  if (existingCount === 0) {
+    const { ADMIN_USERNAME, ADMIN_PASSWORD } = process.env;
 
-  const { ADMIN_USERNAME, ADMIN_PASSWORD } = process.env;
-
-  if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
-    console.warn(
-      "No users exist and ADMIN_USERNAME/ADMIN_PASSWORD are not set in .env -- nobody will be able to log in.",
-    );
-    return;
+    if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+      console.warn(
+        "No users exist and ADMIN_USERNAME/ADMIN_PASSWORD are not set in .env -- nobody will be able to log in.",
+      );
+    } else {
+      await ensureUserFromEnv("ADMIN_USERNAME", "ADMIN_PASSWORD", "super_admin");
+    }
   }
 
-  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
-
-  await User.create({ username: ADMIN_USERNAME, passwordHash, role: "super_admin" });
-
-  console.log(`Created initial super admin user "${ADMIN_USERNAME}" from .env`);
+  await ensureUserFromEnv("STAFF_ADMIN_USERNAME", "STAFF_ADMIN_PASSWORD", "admin");
 };
