@@ -16,8 +16,32 @@ export const transactionApi = api.injectEndpoints({
       }),
       providesTags: ["Transaction", "Product", "Party"],
     }),
+    getTransactionById: builder.query({
+      query: (id) => `/transactions/getTransactionById/${id}`,
+      providesTags: ["Transaction"],
+    }),
+    editTransaction: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/transactions/editTransaction/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Transaction", "Product", "Party"],
+    }),
+    deleteTransaction: builder.mutation({
+      query: (id) => ({
+        url: `/transactions/deleteTransaction/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Transaction", "Product", "Party"],
+    }),
   }),
 });
 
-export const { useCreateTransactionMutation, useGetAllTransactionsQuery } =
-  transactionApi;
+export const {
+  useCreateTransactionMutation,
+  useGetAllTransactionsQuery,
+  useGetTransactionByIdQuery,
+  useEditTransactionMutation,
+  useDeleteTransactionMutation,
+} = transactionApi;

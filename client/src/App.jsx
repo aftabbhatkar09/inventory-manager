@@ -13,6 +13,7 @@ import PartyLedgerPage from "./pages/party/partyLedgerPage";
 
 import TransactionPage from "./pages/transaction/transactionPage";
 import CreateTransactionPage from "./pages/transaction/createTransactionPage";
+import EditTransactionPage from "./pages/transaction/editTransactionPage";
 
 import OutStandingReport from "./pages/reports/outStandingReport";
 
@@ -31,6 +32,10 @@ function App() {
         <Route
           path="transactions/createTransaction"
           element={<CreateTransactionPage />}
+        />
+        <Route
+          path="transactions/editTransaction/:id"
+          element={<EditTransactionPage />}
         />
         <Route path="reports/outstanding" element={<OutStandingReport />} />
       </Route>

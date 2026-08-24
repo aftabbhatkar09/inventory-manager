@@ -1,9 +1,13 @@
 import Transaction from "../models/transaction.model.js";
 
-export const getProductStockById = async (productId) => {
-  const transactions = await Transaction.find({
-    "products.product": productId,
-  });
+export const getProductStockById = async (productId, excludeTransactionId = null) => {
+  const query = { "products.product": productId };
+
+  if (excludeTransactionId) {
+    query._id = { $ne: excludeTransactionId };
+  }
+
+  const transactions = await Transaction.find(query);
 
   let stock = 0;
 
