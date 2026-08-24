@@ -25,7 +25,8 @@ const OutStandingReport = () => {
               <th className="border p-2 text-right">Opening</th>
               <th className="border p-2 text-right">Credit</th>
               <th className="border p-2 text-right">Debit</th>
-              <th className="border p-2 text-right">Balance</th>
+              <th className="border p-2 text-right">Receivable</th>
+              <th className="border p-2 text-right">Payable</th>
             </tr>
           </thead>
 
@@ -54,12 +55,15 @@ const OutStandingReport = () => {
                   <td className="border p-2 text-right">
                     ₹{party.totalDebit.toLocaleString()}
                   </td>
-                  <td className="border p-2 text-right font-semibold">
-                    <span
-                      className={`${party.balance >= 0 ? "text-green-600" : "text-red-600"}`}
-                    >
-                      ₹{party.balance.toLocaleString()}
-                    </span>
+                  <td className="border p-2 text-right font-semibold text-green-600">
+                    {party.balance > 0
+                      ? `₹${party.balance.toLocaleString()}`
+                      : "-"}
+                  </td>
+                  <td className="border p-2 text-right font-semibold text-red-600">
+                    {party.balance < 0
+                      ? `₹${Math.abs(party.balance).toLocaleString()}`
+                      : "-"}
                   </td>
                 </tr>
               ))
