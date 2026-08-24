@@ -18,7 +18,7 @@ const OutStandingReport = () => {
     <div className="space-y-6">
       <h1 className="text-xl font-bold">Outstanding Report</h1>
 
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
@@ -48,7 +48,7 @@ const OutStandingReport = () => {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-300">
               {data.length === 0 ? (
                 <tr>
                   <td

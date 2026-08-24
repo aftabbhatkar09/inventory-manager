@@ -48,7 +48,7 @@ const StockTransferPage = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 divide-y divide-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 divide-y divide-gray-300 overflow-hidden">
         {data.length === 0 ? (
           <p className="text-sm text-gray-500 py-10 text-center">
             No stock transfers yet.

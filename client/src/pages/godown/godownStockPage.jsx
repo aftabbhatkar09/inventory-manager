@@ -36,7 +36,7 @@ const GodownStockPage = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
@@ -46,7 +46,7 @@ const GodownStockPage = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-300">
             {stock.length === 0 ? (
               <tr>
                 <td colSpan={2} className="px-4 py-10 text-center text-gray-500">
