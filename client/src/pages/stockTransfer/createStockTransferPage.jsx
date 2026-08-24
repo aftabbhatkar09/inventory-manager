@@ -5,7 +5,10 @@ import toast from "react-hot-toast";
 import { MdOutlineKeyboardBackspace } from "react-icons/md";
 
 import { useGetProductsQuery } from "../../redux/product/productApi";
-import { useGetGodownsQuery } from "../../redux/godown/godownApi";
+import {
+  useGetGodownsQuery,
+  useGetGodownStockQuery,
+} from "../../redux/godown/godownApi";
 import { useCreateTransferMutation } from "../../redux/stockTransfer/stockTransferApi";
 
 const CreateStockTransferPage = () => {
@@ -23,8 +26,35 @@ const CreateStockTransferPage = () => {
     note: "",
   });
 
+  const { data: fromGodownStock } = useGetGodownStockQuery(
+    formData.fromGodown,
+    { skip: !formData.fromGodown },
+  );
+
+  const availableQuantity = fromGodownStock?.find(
+    (row) => row.productId === formData.product,
+  )?.quantity;
+
+  // A godown can't be both source and destination -- keep it out of the
+  // "To" list entirely rather than letting it be picked and rejected later.
+  const toGodowns = godowns?.filter((g) => g._id !== formData.fromGodown);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Changing the source godown may invalidate the current destination
+    // (if it was the same godown), so drop it rather than leave a hidden
+    // invalid selection in place.
+    if (name === "fromGodown") {
+      setFormData({
+        ...formData,
+        fromGodown: value,
+        toGodown: formData.toGodown === value ? "" : formData.toGodown,
+      });
+      return;
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const validate = () => {
@@ -118,6 +148,11 @@ const CreateStockTransferPage = () => {
               </option>
             ))}
           </select>
+          {formData.fromGodown && formData.product && (
+            <p className="text-xs text-gray-500 mt-1">
+              Available: {availableQuantity ?? 0}
+            </p>
+          )}
         </div>
 
         {/* To Godown */}
@@ -130,7 +165,7 @@ const CreateStockTransferPage = () => {
             className="w-full border p-2 rounded mt-1"
           >
             <option value="">Select Destination Godown</option>
-            {godowns?.map((g) => (
+            {toGodowns?.map((g) => (
               <option key={g._id} value={g._id}>
                 {g.name}
               </option>
