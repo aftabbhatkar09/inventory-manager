@@ -35,12 +35,39 @@ const CreateStockTransferPage = () => {
     (row) => row.productId === formData.product,
   )?.quantity;
 
+  const selectedProduct = products?.find((p) => p._id === formData.product);
+
+  // Only offer godowns that actually hold this product -- no point picking
+  // a source that has zero of it.
+  const fromGodowns = selectedProduct
+    ? godowns?.filter((g) =>
+        selectedProduct.godownStock?.some((gs) => gs.godownId === g._id),
+      )
+    : godowns;
+
   // A godown can't be both source and destination -- keep it out of the
   // "To" list entirely rather than letting it be picked and rejected later.
   const toGodowns = godowns?.filter((g) => g._id !== formData.fromGodown);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Changing the product may invalidate the current source godown (if it
+    // doesn't hold this product), which in turn may invalidate the
+    // destination -- clear both rather than leave a stale selection.
+    if (name === "product") {
+      const stillValid = products
+        ?.find((p) => p._id === value)
+        ?.godownStock?.some((gs) => gs.godownId === formData.fromGodown);
+
+      setFormData({
+        ...formData,
+        product: value,
+        fromGodown: stillValid ? formData.fromGodown : "",
+        toGodown: stillValid ? formData.toGodown : "",
+      });
+      return;
+    }
 
     // Changing the source godown may invalidate the current destination
     // (if it was the same godown), so drop it rather than leave a hidden
@@ -142,12 +169,17 @@ const CreateStockTransferPage = () => {
             className="w-full border p-2 rounded mt-1"
           >
             <option value="">Select Source Godown</option>
-            {godowns?.map((g) => (
+            {fromGodowns?.map((g) => (
               <option key={g._id} value={g._id}>
                 {g.name}
               </option>
             ))}
           </select>
+          {formData.product && fromGodowns?.length === 0 && (
+            <p className="text-xs text-red-600 mt-1">
+              No godown currently has stock of this product.
+            </p>
+          )}
           {formData.fromGodown && formData.product && (
             <p className="text-xs text-gray-500 mt-1">
               Available: {availableQuantity ?? 0}
