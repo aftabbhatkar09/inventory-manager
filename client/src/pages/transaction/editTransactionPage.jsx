@@ -50,8 +50,25 @@ const EditTransactionPage = () => {
 
   // Handle normal fields
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Changing the transaction type changes which parties are valid, so
+    // drop the current party selection rather than silently keeping a
+    // customer selected for a purchase (or vice versa).
+    if (name === "type") {
+      setFormData({ ...formData, type: value, party: "" });
+      return;
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
+
+  // Sale -> customers, purchase -> suppliers. A party can be both.
+  const filteredParties = parties?.filter((p) =>
+    formData.type === "sale"
+      ? p.type.includes("customer")
+      : p.type.includes("supplier"),
+  );
 
   // Handle product row changes
   const handleProductChange = (index, field, value) => {
@@ -187,7 +204,7 @@ const EditTransactionPage = () => {
             className="w-full border p-2 rounded mt-1"
           >
             <option value="">Select Party</option>
-            {parties?.map((p) => (
+            {filteredParties?.map((p) => (
               <option key={p._id} value={p._id}>
                 {p.name}
               </option>
