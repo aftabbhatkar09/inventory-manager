@@ -8,6 +8,7 @@ import productRoutes from "./routes/product.route.js";
 import partyRoutes from "./routes/party.routes.js";
 import transactionRoutes from "./routes/transaction.route.js";
 import outstandingReportRoutes from "./routes/outstandingReport.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/parties", partyRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/reports", outstandingReportRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.get("/", (req, res) => {
   res.send("Hello World");
 });

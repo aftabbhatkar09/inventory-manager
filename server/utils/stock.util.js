@@ -1,5 +1,29 @@
 import Transaction from "../models/transaction.model.js";
 
+// Current stock for every product referenced by any transaction.
+export const getStockMap = async () => {
+  const transactions = await Transaction.find();
+  const stockMap = {};
+
+  transactions.forEach((txn) => {
+    txn.products.forEach((item) => {
+      const productId = item.product.toString();
+
+      if (!stockMap[productId]) {
+        stockMap[productId] = 0;
+      }
+
+      if (txn.type === "purchase") {
+        stockMap[productId] += item.quantity;
+      } else if (txn.type === "sale") {
+        stockMap[productId] -= item.quantity;
+      }
+    });
+  });
+
+  return stockMap;
+};
+
 export const getProductStockById = async (productId, excludeTransactionId = null) => {
   const query = { "products.product": productId };
 

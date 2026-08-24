@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "./layout/mainLayout";
 
+import DashboardPage from "./pages/dashboard/dashboardPage";
+
 import ProductPage from "./pages/product/productPage";
 import CreateProductPage from "./pages/product/createProductPage";
 import EditProductPage from "./pages/product/editProductPage";
@@ -21,6 +23,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
+        <Route index element={<DashboardPage />} />
         <Route path="products" element={<ProductPage />} />
         <Route path="products/createProduct" element={<CreateProductPage />} />
         <Route path="products/editProduct/:id" element={<EditProductPage />} />

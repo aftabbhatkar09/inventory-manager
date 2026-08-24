@@ -1,6 +1,5 @@
 import Product from "../models/product.model.js";
-import Transaction from "../models/transaction.model.js";
-import { getProductStockById } from "../utils/stock.util.js";
+import { getProductStockById, getStockMap } from "../utils/stock.util.js";
 
 //Create Product
 export const createProduct = async (req, res) => {
@@ -35,25 +34,7 @@ export const getAllProducts = async (req, res) => {
       createdAt: -1,
     });
 
-    const transactions = await Transaction.find();
-
-    const stockMap = {};
-
-    transactions.forEach((txn) => {
-      txn.products.forEach((item) => {
-        const productId = item.product.toString();
-
-        if (!stockMap[productId]) {
-          stockMap[productId] = 0;
-        }
-
-        if (txn.type === "purchase") {
-          stockMap[productId] += item.quantity;
-        } else if (txn.type === "sale") {
-          stockMap[productId] -= item.quantity;
-        }
-      });
-    });
+    const stockMap = await getStockMap();
 
     const result = products.map((product) => ({
       ...product.toObject(),
