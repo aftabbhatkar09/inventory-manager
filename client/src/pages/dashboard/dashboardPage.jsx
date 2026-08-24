@@ -81,6 +81,18 @@ const DashboardPage = () => {
     .map((p) => ({ name: p.name, stock: p.stock || 0 }))
     .reverse();
 
+  const stockByGodownMap = {};
+  products.forEach((p) => {
+    p.godownStock?.forEach((g) => {
+      stockByGodownMap[g.godownName] =
+        (stockByGodownMap[g.godownName] || 0) + g.quantity;
+    });
+  });
+  const stockByGodown = Object.entries(stockByGodownMap)
+    .map(([name, stock]) => ({ name, stock }))
+    .sort((a, b) => b.stock - a.stock)
+    .reverse();
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold">Dashboard</h1>
@@ -191,6 +203,38 @@ const DashboardPage = () => {
           ) : (
             <ResponsiveContainer>
               <BarChart data={topStock} layout="vertical" barCategoryGap="25%">
+                <CartesianGrid horizontal={false} stroke={GRIDLINE} />
+                <XAxis
+                  type="number"
+                  tick={{ fill: MUTED_INK, fontSize: 12 }}
+                  axisLine={{ stroke: GRIDLINE }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={80}
+                  tick={{ fill: MUTED_INK, fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip />
+                <Bar dataKey="stock" fill={COLOR_BLUE} radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </ChartCard>
+
+        <ChartCard title="Stock by Godown">
+          {stockByGodown.length === 0 ? (
+            <p className="text-sm text-gray-500">No godowns yet.</p>
+          ) : (
+            <ResponsiveContainer>
+              <BarChart
+                data={stockByGodown}
+                layout="vertical"
+                barCategoryGap="25%"
+              >
                 <CartesianGrid horizontal={false} stroke={GRIDLINE} />
                 <XAxis
                   type="number"
