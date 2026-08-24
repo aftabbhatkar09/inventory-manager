@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -6,6 +7,8 @@ import { HashLoader } from "react-spinners";
 import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
+
+import SearchInput from "../../components/SearchInput";
 
 import {
   useGetPaymentsQuery,
@@ -17,6 +20,22 @@ const PaymentPage = () => {
 
   const { data = [], isLoading } = useGetPaymentsQuery();
   const [deletePaymentById] = useDeletePaymentByIdMutation();
+  const [search, setSearch] = useState("");
+
+  const filteredData = data.filter((payment) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [
+      payment.party?.name,
+      payment.type,
+      payment.paymentMode,
+      payment.note,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this payment?")) {
@@ -49,11 +68,19 @@ const PaymentPage = () => {
         </button>
       </div>
 
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by party, mode, or note"
+      />
+
       <div className="bg-white rounded-xl shadow p-4 space-y-3">
-        {data.length === 0 ? (
-          <p>No payments recorded yet.</p>
+        {filteredData.length === 0 ? (
+          <p className="text-sm text-gray-500 py-6 text-center">
+            {search ? "No payments match your search." : "No payments recorded yet."}
+          </p>
         ) : (
-          data.map((payment) => (
+          filteredData.map((payment) => (
             <div
               key={payment._id}
               className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 border p-3 rounded-lg hover:shadow transition"

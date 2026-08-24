@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -6,6 +7,8 @@ import { HashLoader } from "react-spinners";
 import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
+
+import SearchInput from "../../components/SearchInput";
 
 import {
   useGetProductsQuery,
@@ -17,6 +20,17 @@ const ProductPage = () => {
 
   const { data: products = [], isLoading, isError } = useGetProductsQuery();
   const [deleteProduct] = useDeleteProductMutation();
+  const [search, setSearch] = useState("");
+
+  const filteredProducts = products.filter((p) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.sku.toLowerCase().includes(q) ||
+      (p.category || "").toLowerCase().includes(q)
+    );
+  });
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this product?")) {
@@ -51,10 +65,21 @@ const ProductPage = () => {
         </button>
       </div>
 
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by name, SKU, or category"
+      />
+
       {/* Product List  */}
       <div className="bg-gray-50 rounded-xl shadow-md p-4">
+        {filteredProducts.length === 0 ? (
+          <p className="text-sm text-gray-500 py-6 text-center">
+            {search ? "No products match your search." : "No products yet."}
+          </p>
+        ) : (
         <div className="space-y-3">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div
               key={product._id}
               className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 border p-3 rounded-lg hover:shadow transition"
@@ -95,6 +120,7 @@ const ProductPage = () => {
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -6,6 +7,8 @@ import { HashLoader } from "react-spinners";
 import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
+
+import SearchInput from "../../components/SearchInput";
 
 import {
   useGetAllTransactionsQuery,
@@ -17,6 +20,23 @@ const TransactionPage = () => {
 
   const { data = [], isLoading } = useGetAllTransactionsQuery();
   const [deleteTransaction] = useDeleteTransactionMutation();
+  const [search, setSearch] = useState("");
+
+  const filteredData = data.filter((txn) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [
+      txn.type,
+      txn.party?.name,
+      txn.godown?.name,
+      txn.paymentMode,
+      ...txn.products.map((p) => p.product?.name),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this transaction?")) {
@@ -49,12 +69,22 @@ const TransactionPage = () => {
         </button>
       </div>
 
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by party, product, godown, or type"
+      />
+
       <div className="bg-white rounded-xl shadow p-4 space-y-4">
-        {data.length === 0 ? (
-          <p>No transactions found.</p>
+        {filteredData.length === 0 ? (
+          <p className="text-sm text-gray-500 py-6 text-center">
+            {search
+              ? "No transactions match your search."
+              : "No transactions found."}
+          </p>
         ) : (
           <div>
-            {data.map((txn) => (
+            {filteredData.map((txn) => (
               <div
                 key={txn._id}
                 className="bg-gray-100 rounded-xl shadow p-4 space-y-4 mb-4"

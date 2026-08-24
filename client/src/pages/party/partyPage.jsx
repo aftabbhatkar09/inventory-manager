@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -6,6 +7,8 @@ import { HashLoader } from "react-spinners";
 import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
+
+import SearchInput from "../../components/SearchInput";
 
 import {
   useGetPartiesQuery,
@@ -17,6 +20,17 @@ const PartyPage = () => {
 
   const { data, isLoading, error } = useGetPartiesQuery();
   const [deletePartyById] = useDeletePartyByIdMutation();
+  const [search, setSearch] = useState("");
+
+  const filteredParties = (data || []).filter((party) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      party.name.toLowerCase().includes(q) ||
+      (party.phone || "").toLowerCase().includes(q) ||
+      party.type.join(" ").toLowerCase().includes(q)
+    );
+  });
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this party?")) {
@@ -52,9 +66,20 @@ const PartyPage = () => {
         </button>
       </div>
 
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by name, phone, or type"
+      />
+
       {/* Party List  */}
       <div className="bg-white rounded-xl shadow-md p-4 space-y-3">
-        {data.map((party) => (
+        {filteredParties.length === 0 ? (
+          <p className="text-sm text-gray-500 py-6 text-center">
+            {search ? "No parties match your search." : "No parties yet."}
+          </p>
+        ) : (
+        filteredParties.map((party) => (
           <div
             key={party._id}
             className="flex justify-between items-center gap-2 border p-3 rounded-lg hover:shadow transition"
@@ -89,7 +114,8 @@ const PartyPage = () => {
               </button>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   );
