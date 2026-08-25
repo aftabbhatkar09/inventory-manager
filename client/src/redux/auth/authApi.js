@@ -16,7 +16,11 @@ export const authApi = api.injectEndpoints({
         url: "/auth/logout",
         method: "POST",
       }),
-      invalidatesTags: ["Auth"],
+      // No invalidatesTags here -- invalidating "Auth" would make any
+      // still-mounted subscriber (MainLayout, RequireAuth) immediately
+      // refetch getMe before the redirect to /login unmounts them, which
+      // always fails with 401 since the cookie's already cleared. We
+      // already know the outcome; no need to ask the server again.
     }),
 
     getMe: builder.query({
