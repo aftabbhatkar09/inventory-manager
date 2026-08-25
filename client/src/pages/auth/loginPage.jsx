@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -24,6 +24,17 @@ const LoginPage = () => {
 
   const [formData, setFormData] = useState({ username: "", password: "" });
 
+  // Free-tier hosting can take 30-60s to wake from sleep -- without this,
+  // a cold-started login just sits on "Logging in..." and looks broken.
+  const [showWakingHint, setShowWakingHint] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const timer = setTimeout(() => setShowWakingHint(true), 4000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -35,6 +46,8 @@ const LoginPage = () => {
       toast.error("Username and password are required");
       return;
     }
+
+    setShowWakingHint(false);
 
     try {
       await login(formData).unwrap();
@@ -48,6 +61,8 @@ const LoginPage = () => {
   };
 
   const handleDemoLogin = async () => {
+    setShowWakingHint(false);
+
     try {
       await login({ username: DEMO_USERNAME, password: DEMO_PASSWORD }).unwrap();
 
@@ -123,6 +138,13 @@ const LoginPage = () => {
           >
             {isLoading ? "Logging in..." : "Log In"}
           </button>
+
+          {isLoading && showWakingHint && (
+            <p className="text-xs text-amber-600 text-center -mt-2">
+              Still working -- this demo runs on free hosting that can take
+              up to a minute to wake up after being idle. Hang tight.
+            </p>
+          )}
 
           {DEMO_LOGIN_ENABLED && (
             <div className="pt-4 border-t border-gray-200 space-y-3">
