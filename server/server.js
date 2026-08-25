@@ -5,7 +5,12 @@ import app from "./app.js";
 
 validateEnv();
 
-connectDB().then(ensureAdminUser);
+connectDB()
+  .then(ensureAdminUser)
+  .catch((error) => {
+    console.error("Database connection failed:", error.message);
+    process.exit(1);
+  });
 
 const PORT = process.env.PORT || 5000;
 
