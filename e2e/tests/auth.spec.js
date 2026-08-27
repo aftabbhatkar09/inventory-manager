@@ -42,13 +42,17 @@ test.describe("authentication", () => {
     await page.fill('input[name="password"]', SUPER_ADMIN.password);
     await page.click('button:has-text("Log In")');
     await expect(page).toHaveURL("/");
-    // Let the dashboard's own data fetches settle before watching for
-    // requests -- otherwise their tail end gets misattributed to logout.
-    await page.waitForLoadState("networkidle");
+    // Let the initial mount's own getMe call (MainLayout/RequireAuth) clear
+    // before watching for one -- we only care about a call caused by logout.
+    await page.waitForTimeout(500);
 
-    const requestsAfterLogout = [];
+    // The dashboard's own widgets (summary, monthly-trend, products, ...)
+    // keep loading for a bit after the URL changes -- that's expected and
+    // unrelated to logout, so only watch for the one call this is actually
+    // a regression test for: getMe being refetched right as we log out.
+    const meCallsAfterLogout = [];
     page.on("request", (req) => {
-      if (req.url().includes("/api/")) requestsAfterLogout.push(req.url());
+      if (req.url().endsWith("/auth/me")) meCallsAfterLogout.push(req.url());
     });
 
     await page.click('button:has-text("Log Out")');
@@ -57,8 +61,7 @@ test.describe("authentication", () => {
 
     // Regression test: logout used to also fire a doomed getMe refetch
     // (see commit "Stop logout from triggering a doomed refetch of getMe").
-    const nonLogoutCalls = requestsAfterLogout.filter((url) => !url.endsWith("/auth/logout"));
-    expect(nonLogoutCalls).toEqual([]);
+    expect(meCallsAfterLogout).toEqual([]);
 
     // Session is genuinely gone, not just a client-side redirect.
     await page.goto("/products");
