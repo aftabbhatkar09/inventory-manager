@@ -3,6 +3,9 @@ name: Regenerate client lockfile (temporary, one-off)
 on:
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   regen:
     runs-on: ubuntu-latest
