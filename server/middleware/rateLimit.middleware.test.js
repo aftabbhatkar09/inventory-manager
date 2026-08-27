@@ -2,11 +2,13 @@ import { describe, it, expect } from "vitest";
 import express from "express";
 import request from "supertest";
 
-import { loginRateLimit } from "./rateLimit.middleware.js";
+import { createLoginRateLimit } from "./rateLimit.middleware.js";
 
 const buildApp = () => {
   const app = express();
-  app.post("/login", loginRateLimit, (req, res) => res.json({ ok: true }));
+  // Its own instance -- not the shared singleton the real app uses -- so
+  // deliberately exhausting it here can't affect any other test file.
+  app.post("/login", createLoginRateLimit(), (req, res) => res.json({ ok: true }));
   return app;
 };
 
